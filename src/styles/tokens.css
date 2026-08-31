@@ -1,4 +1,71 @@
-/* src/styles/tokens.css — GENERATED FROM FIGMA VARIABLES IN TASK 2. Do not hand-edit. */
+/* src/styles/tokens.css
+   Source: sampled from wizard-spec-files/screens/ — the Figma variables path is dead
+   for this account (Figma MCP: View-seat quota error; figma-rest MCP: 403 token expired).
+   Spec §7.4 explicitly permits this fallback. See docs/figma-capture.md for the full
+   sampling method, per-token source file/coordinates, and confidence notes.
+   File XseXmXBMoevLAxK3x2VHgY, page Dashboard settings_self onboarding (7606:10539).
+   Do not hand-edit in components; change it here. When real Figma variables become
+   available, swapping the values below is a one-file change — token names do not change. */
 @theme {
-  /* placeholder */
+  /* --- Brand / chrome --- */
+  --color-viq-brand-green:       #baf75b;  /* top strip wordmark "VisibilityIQ Foresight", A1 */
+  --color-viq-strip-dark:        #131b05;  /* top strip fill, near-black olive-green, A1 */
+
+  /* --- Primary action --- */
+  --color-viq-primary:           #5665a3;  /* primary button / focus ring / badge blue — R3 Done button */
+  --color-viq-primary-hover:     #4c598f;  /* not a variable — sampled attempt failed: the Submit/Done/Apply
+                                               Filters button renders identically (#5665a3) in every frame
+                                               named "hover" (B08, D3, C4) — no distinct hover fill exists in
+                                               the rendered set. Programmatically darkened primary by 12% as
+                                               the best-effort value; verify against real Figma variables. */
+  --color-viq-nav-active:        #eef1f7;  /* sidebar active fill "Dashboard Settings", light blue-grey, A1 */
+
+  /* --- Text --- */
+  --color-viq-text:              #131b05;  /* body and label text — H1 "Dashboard Settings", B01 (matches
+                                               strip-dark; this design's "black" is a near-black olive-green) */
+  --color-viq-text-muted:        #7c7c7d;  /* review-row labels, secondary copy — R3 "Display name" label */
+  --color-viq-text-placeholder:  #d1d3d7;  /* input placeholder — B01 "Type your account number..." */
+
+  /* --- Borders --- */
+  --color-viq-border:            #d0d8e7;  /* control borders, table rules, card borders — B01 input box */
+  --color-viq-border-hover:      #a4a9af;  /* B03 control border on hover */
+  --color-viq-border-focus:      #5665a3;  /* not a variable — sampled attempt failed: B04's "selected"
+                                               Account Number field shows only a plain grey border (#a4a9af,
+                                               identical to border-hover) plus a text caret — no blue focus
+                                               ring is rendered anywhere in the PNG set (checked B04 and the
+                                               B08 "chip-hover" border, both grey). Reusing --color-viq-primary
+                                               as the focus indicator per common convention; escalate to get
+                                               the real value from Figma variables. */
+  --color-viq-border-strong:     #868f8a;  /* not a required token — sampled: the "Back" ghost-button stroke,
+                                               B01. Distinct from --color-viq-border; kept so components never
+                                               hardcode this hex. */
+
+  /* --- Surfaces --- */
+  --color-viq-surface-hover:     #f3f5fa;  /* row / option / ghost-button hover fill — F3 hovered table row */
+  --color-viq-surface-disabled:  #f6f7fa;  /* disabled input fill — B02 disabled Submit button */
+  --color-viq-surface-search:    #f6f7fa;  /* grey fill behind the tree-select search bar, B06 */
+  --color-viq-scrim:             #e7e8e6;  /* washed-out page scrim behind the modal, F2 (flat, 100% of a
+                                               large blank sample — the most reliable value in this file) */
+  --color-viq-logo-scrim:        #cccccc;  /* grey scrim over the logo card on hover, B08 */
+
+  /* --- Icons / status --- */
+  --color-viq-icon-muted:        #7f7f80;  /* info, chevron, search, download, funnel icons — C5 funnel icon */
+  --color-viq-danger:            #de5c57;  /* required-field asterisk — B01 "Account number *" */
+  --color-viq-badge:             #0f2015;  /* dark count badge on the funnel icon, C5 (flat, isolated sample) */
+
+  /* --- Existing-Dashboards tag pills, F2b (thin 1px stroke on a pill shape at this render scale;
+         every sample here is anti-aliasing-diluted — see docs/figma-capture.md for the measurement
+         method and the darkest-pixel values collected) --- */
+  --color-viq-tag-upgrade:       #a4d8c4;  /* Tag outline, green — F2b, darkest pixel across 5 samples */
+  --color-viq-tag-none:          #c2c6ca;  /* Tag outline, grey — F2b, darkest pixel across 4 samples */
+  --color-viq-tag-add-licenses:  #f6c963;  /* Tag outline, amber — F6, one isolated unblended pixel;
+                                               the most reliable of the three tag colours */
+
+  /* --- Radius --- */
+  --radius-viq-control:          6px;      /* input / button / chip radius — measured from the corner curve
+                                               on R3's Done button and B01's input box (~4-5 rendered px at
+                                               0.758 scale ≈ 6px design) */
+  --radius-viq-modal:            8px;      /* spec §1 Row F: modal radius ~8 */
+  --radius-viq-pill:             9999px;   /* not a required token — sampled: the F2b status tags render as
+                                               fully-rounded stadium pills, distinct from --radius-viq-control */
 }
