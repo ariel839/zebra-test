@@ -48,6 +48,18 @@
                                                large blank sample — the most reliable value in this file) */
   --color-viq-logo-scrim:        #cccccc;  /* grey scrim over the logo card on hover, B08 */
 
+  /* --- Tooltip (Row D — added Task 6) --- */
+  --color-viq-tooltip-bg:        #ffffff;  /* Task 6: sampled from D1/D2/D3 tooltip box interior, hist over
+                                               (328,100)-(495,140) on D1 — flat #ffffff, 100% of a text-free
+                                               patch (101-103,332-490). No hard border was found — the edge
+                                               is a soft drop-shadow fringe (#bcbcbd fading to white), not a
+                                               stroke, so the component uses shadow-lg rather than a border. */
+  --color-viq-tooltip-text:      #7c7c7d; /* Task 6: darkest anti-aliased text pixel, sampled independently
+                                               across all three Row D frames (D1 #7b7b7c@(387,108); D2
+                                               #7c7c7d@(567,118); D3 #7c7c7d@(567,117)) — consistently lands
+                                               on the same value, which is also an exact match for the
+                                               existing --color-viq-text-muted. High confidence. */
+
   /* --- Icons / status --- */
   --color-viq-icon-muted:        #7f7f80;  /* info, chevron, search, download, funnel icons — C5 funnel icon */
   --color-viq-danger:            #de5c57;  /* required-field asterisk — B01 "Account number *" */
