@@ -95,17 +95,22 @@ export function ExistingDashboardsModal({
       title={title}
       footer={
         <div className="flex justify-end">
-          <Button variant="outline" onClick={onCreateNew} forceHover={forceCreateNewHover}>
+          <Button
+            variant="outline"
+            className="w-[180px]"
+            onClick={onCreateNew}
+            forceHover={forceCreateNewHover}
+          >
             {EXISTING_DASHBOARDS_COPY.createNew}
           </Button>
         </div>
       }
     >
-      <div className="flex flex-col gap-4">
-        <p className="text-sm text-viq-text-muted">{body}</p>
+      <div className="flex flex-col">
+        <p className="text-[16px] leading-6 text-viq-text-muted">{body}</p>
 
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-viq-text">
+        <div className="mt-[59px] flex items-center justify-between">
+          <h3 className="text-[16px] leading-6 font-semibold text-viq-text">
             {EXISTING_DASHBOARDS_COPY.sectionHeading}
           </h3>
           <div className="flex items-center gap-1">
@@ -118,6 +123,7 @@ export function ExistingDashboardsModal({
         </div>
 
         <DataTable
+          className="mt-[30px]"
           columns={COLUMNS}
           rows={rows}
           forceHoverRowId={forceHoverRowId}

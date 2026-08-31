@@ -19,7 +19,7 @@ export function ChipGroup({ labels, max = 2, onRemove, forceHoverLabel }: ChipGr
   const shown = labels.slice(0, max)
   const overflow = labels.length - shown.length
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-nowrap items-center gap-2">
       {shown.map((l) => (
         <Chip
           key={l}

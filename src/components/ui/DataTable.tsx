@@ -41,11 +41,17 @@ export function DataTable<T extends { id: string }>({
   className,
 }: DataTableProps<T>) {
   return (
-    <table className={cn('w-full border-collapse text-left text-sm text-viq-text', className)}>
+    <table className={cn('w-full border-collapse text-left text-[12px] text-viq-text', className)}>
       <thead>
         <tr className="border-b border-viq-border">
           {columns.map((column) => (
-            <th key={column.key} className="px-4 py-3 font-medium text-viq-text-muted">
+            <th
+              key={column.key}
+              // F2's five data columns sit on a 242px pitch starting at the
+              // modal's content edge, so the cells are fixed-width and flush
+              // left rather than evenly divided with side padding.
+              className="h-[22px] w-[242px] pr-4 align-bottom font-medium text-viq-text-muted"
+            >
               <span className="inline-flex items-center gap-1.5">
                 {column.header}
                 {column.headerIcon}
@@ -53,7 +59,7 @@ export function DataTable<T extends { id: string }>({
             </th>
           ))}
           {/* Reserved width for the hover-revealed action cell — no header label. */}
-          <th className="w-12 px-2 py-3" aria-hidden="true" />
+          <th className="h-[22px]" aria-hidden="true" />
         </tr>
       </thead>
       <tbody>
@@ -65,18 +71,18 @@ export function DataTable<T extends { id: string }>({
               key={row.id}
               onClick={onSelect ? () => onSelect(row.id) : undefined}
               className={cn(
-                'group border-b border-viq-border last:border-b-0 hover:bg-viq-surface-hover',
+                'group border-b border-viq-border hover:bg-viq-surface-hover',
                 onSelect && 'cursor-pointer',
                 selected && 'bg-viq-nav-active',
                 forced && 'bg-viq-surface-hover',
               )}
             >
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-3">
+                <td key={column.key} className="h-12 w-[242px] pr-4">
                   {column.render(row)}
                 </td>
               ))}
-              <td className="w-12 px-2 py-3">
+              <td className="h-12 pr-0">
                 <div
                   className={cn(
                     'opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100',

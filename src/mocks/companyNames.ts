@@ -6,7 +6,21 @@
  * 'LKG Corporation' is spelled with a G in this dropdown while the tree (§4) says 'LKQ'.
  * Reproduce both as drawn and add it to the copy-bug list.
  */
+import type { BadgeTone } from '@/components/ui/Select'
+
 export type CompanyNameKind = 'Standard' | 'Subsidiary' | 'Account'
+
+/**
+ * Badge fill per kind, as drawn in B05: three distinct tones, not two. Lives here
+ * rather than in each route because both the form and the review screen render this
+ * same list — an inline `kind === 'Account' ? 'blue' : 'grey'` in each of them is how
+ * 'Subsidiary' came to render as dark grey in the first place.
+ */
+export const COMPANY_NAME_BADGE_TONES: Record<CompanyNameKind, BadgeTone> = {
+  Standard: 'grey',
+  Subsidiary: 'grey-light',
+  Account: 'blue',
+}
 
 export interface CompanyNameOption {
   id: string

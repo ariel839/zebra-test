@@ -102,6 +102,22 @@
   --color-viq-danger:            #de5c57;  /* required-field asterisk — B01 "Account number *" */
   --color-viq-badge:             #0f2015;  /* dark count badge on the funnel icon, C5 (flat, isolated sample) */
 
+  /* --- Company-name type badges, B05 (three distinct fills, one per kind — the dropdown's
+         only visual difference between the two rows both labelled "Euro Car Parts") --- */
+  --color-viq-badge-grey:        #7a7a7b;  /* "Standard" pill fill, white text — B05, flat 318px histogram
+                                               over (560,198)-(613,217). Two units off
+                                               --color-viq-text-muted (#7c7c7d) and kept separate: it is a
+                                               solid shape fill, not text. */
+  --color-viq-badge-grey-light:  #d1d1d1;  /* "Subsidiary" pill fill, --color-viq-text text — B05, flat 365px
+                                               histogram over (556,230)-(613,249). CAVEAT: B05 is the only
+                                               frame with this list open and its Subsidiary row happens to be
+                                               the hovered one, so this could in principle be a hover fill.
+                                               Read as a rest tone because the row's hover is already carried
+                                               by --color-viq-surface-hover (#f3f5fa, present in the same
+                                               frame) and because a badge that lightens on hover has no
+                                               precedent elsewhere in the set. Confirm if Figma access
+                                               returns. */
+
   /* --- Existing-Dashboards tag pills, F2b (thin 1px stroke on a pill shape at this render scale;
          every sample here is anti-aliasing-diluted — see docs/figma-capture.md for the measurement
          method and the darkest-pixel values collected) --- */

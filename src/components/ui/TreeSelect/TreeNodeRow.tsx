@@ -44,6 +44,14 @@ export function TreeNodeRow({
         className="flex h-8 min-w-0 items-center gap-0 pr-1 hover:bg-viq-surface-hover"
         style={{ paddingLeft: 8 + depth * INDENT_PX }}
       >
+        <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+          <Checkbox
+            checked={state === 'checked'}
+            indeterminate={state === 'indeterminate'}
+            label={node.label}
+            onChange={(checked) => onSelectedChange(toggleNode(node, selected, checked))}
+          />
+        </div>
         {hasChildren ? (
           <button
             type="button"
@@ -56,14 +64,6 @@ export function TreeNodeRow({
         ) : (
           <span className="w-2.5 shrink-0" />
         )}
-        <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-          <Checkbox
-            checked={state === 'checked'}
-            indeterminate={state === 'indeterminate'}
-            label={node.label}
-            onChange={(checked) => onSelectedChange(toggleNode(node, selected, checked))}
-          />
-        </div>
       </div>
       {hasChildren && expanded && (
         <ul>

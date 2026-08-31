@@ -36,11 +36,11 @@ export function LoadingOverlay({ progress }: LoadingOverlayProps) {
           />
         </div>
 
-        <p className="mt-[11px] text-[16px] leading-6 text-viq-text-muted">
+        <p className="mt-[11px] text-[14px] leading-5 text-viq-text-muted">
           {OVERLAYS_COPY.loading.progress(progress)}
         </p>
 
-        <p className="text-[18px] leading-7 text-viq-text-muted">
+        <p className="mt-[4px] text-[18px] leading-7 text-viq-text-muted">
           {OVERLAYS_COPY.loading.subtitle}
         </p>
       </div>

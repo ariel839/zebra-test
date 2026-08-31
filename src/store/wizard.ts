@@ -2,6 +2,11 @@ import { create } from 'zustand'
 import { accountLookup } from '@/mocks/accountLookup'
 import type { LookupResult } from '@/types/dashboard'
 
+/** How long the loading card sits at a full bar before success takes over. */
+const FULL_BAR_HOLD = 450
+/** How long the success card shows before the wizard advances to review. */
+export const SUCCESS_HOLD = 1400
+
 export type WizardMode = 'edit' | 'review'
 export type WizardStatus = 'idle' | 'submitting' | 'done'
 
@@ -98,7 +103,10 @@ export const useWizardStore = create<WizardState>((set, get) => ({
       set({ progress: pct })
       if (pct >= 100) {
         window.clearInterval(tick)
-        set({ status: 'done' })
+        // Hold on a filled bar reading '100% Complete' before the success
+        // card replaces it — flipping in the same tick meant the loading
+        // overlay never painted 100 and the run looked like it stopped short.
+        window.setTimeout(() => set({ status: 'done' }), FULL_BAR_HOLD)
       }
     }, 50)
   },

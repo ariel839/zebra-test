@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
-import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { FieldLabel } from '@/components/ui/FieldLabel'
@@ -17,10 +17,10 @@ import { WizardShell } from '@/components/wizard/WizardShell'
 import { DASHBOARD_SETTINGS_COPY } from '@/content/dashboardSettings'
 import { useDemoStore, useForcedHover, useForcedOpen } from '@/flow/demoState'
 import { cn } from '@/lib/cn'
-import { COMPANY_NAMES } from '@/mocks/companyNames'
+import { COMPANY_NAMES, COMPANY_NAME_BADGE_TONES } from '@/mocks/companyNames'
 import { COMPANY_TREE } from '@/mocks/companyTree'
 import { CONTRACT_TYPES } from '@/mocks/contractTypes'
-import { selectIsFormValid, useWizardStore } from '@/store/wizard'
+import { SUCCESS_HOLD, selectIsFormValid, useWizardStore } from '@/store/wizard'
 
 const { labels, placeholders, tooltips, buttons, radio } = DASHBOARD_SETTINGS_COPY
 
@@ -29,7 +29,7 @@ const COMPANY_NAME_OPTIONS: SelectOption[] = COMPANY_NAMES.map((c) => ({
   id: c.id,
   label: c.label,
   badge: c.kind,
-  badgeTone: c.kind === 'Account' ? 'blue' : 'grey',
+  badgeTone: COMPANY_NAME_BADGE_TONES[c.kind],
 }))
 
 const AUTO_ADD_CONTRACTS_OPTIONS = [
@@ -53,6 +53,7 @@ function Col({ children }: { children: ReactNode }) {
 
 export function DashboardSettingsForm() {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
 
   const form = useWizardStore((s) => s.form)
   const setField = useWizardStore((s) => s.setField)
@@ -62,6 +63,18 @@ export function DashboardSettingsForm() {
 
   const status = useWizardStore((s) => s.status)
   const progress = useWizardStore((s) => s.progress)
+
+  // Submit -> loading -> success -> review, the spec §5 chain. The success
+  // card is a beat, not a destination, so it advances itself.
+  //
+  // Skipped inside `/flow`: B10 is a captured still there, and navigating
+  // would walk the demo off its own route mid-screen.
+  const inFlow = pathname.startsWith('/flow')
+  useEffect(() => {
+    if (status !== 'done' || inFlow) return
+    const t = window.setTimeout(() => navigate('/setup?mode=review'), SUCCESS_HOLD)
+    return () => window.clearTimeout(t)
+  }, [status, inFlow, navigate])
 
   const lookup = useWizardStore((s) => s.lookup)
   const isModalOpen = useWizardStore((s) => s.isModalOpen)
@@ -253,7 +266,7 @@ export function DashboardSettingsForm() {
       </WizardShell>
 
       {status === 'submitting' && <LoadingOverlay progress={progress} />}
-      {status === 'done' && <SuccessOverlay />}
+      {status === 'done' && <SuccessOverlay progress={progress} />}
 
       <ExistingDashboardsModal
         open={isModalOpen}

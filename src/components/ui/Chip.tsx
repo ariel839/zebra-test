@@ -21,9 +21,9 @@ export interface ChipProps {
 
 /**
  * Outline chip, spec §4 / Figma B07 (`10489:78667`) — the resting state is
- * just the label. Hover (or keyboard focus, for parity) grows an `×` and
- * swaps the border to the focus/primary blue, per B08
- * (`10489:79003`, "IOT Mobile Computer ×").
+ * just the label. Hover (or keyboard focus, for parity) grows an `×`,
+ * swaps the border to the focus/primary blue and fills the chip with the
+ * hover grey, per B08 (`10489:79003`, "IOT Mobile Computer ×").
  *
  * The `×`'s slot is always in the DOM at a fixed width; only its opacity
  * changes on hover. That's deliberate — a chip that widens on hover makes
@@ -37,10 +37,11 @@ export function Chip({ label, onRemove, hoverable = true, className, forceHover 
   return (
     <span
       className={cn(
-        'group inline-flex items-center gap-1 whitespace-nowrap rounded-viq-control border px-2 py-1 text-xs text-viq-text',
+        'group inline-flex min-w-0 items-center gap-1 whitespace-nowrap rounded-viq-control border px-2 py-1 text-xs text-viq-text',
         'border-viq-border',
-        hoverable && 'hover:border-viq-border-focus focus-within:border-viq-border-focus',
-        hoverable && forceHover && 'border-viq-border-focus',
+        hoverable &&
+          'hover:border-viq-border-focus hover:bg-viq-surface-hover focus-within:border-viq-border-focus focus-within:bg-viq-surface-hover',
+        hoverable && forceHover && 'border-viq-border-focus bg-viq-surface-hover',
         className,
       )}
     >

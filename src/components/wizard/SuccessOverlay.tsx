@@ -1,14 +1,20 @@
 import { FileCheck2 } from 'lucide-react'
 import { OVERLAYS_COPY } from '@/content/overlays'
 
+export interface SuccessOverlayProps {
+  /** Always 100 in the real flow; passed through so the card can't strand a stale number. */
+  progress: number
+}
+
 /**
  * B10 (`10489:79811`) — the same 630x378 card and dimmed page as
- * `LoadingOverlay`, with no progress bar: illustration, title, the frame's
- * stranded `37% Complete` line (spec §7.6, reproduced verbatim), description.
+ * `LoadingOverlay`, with no progress bar: illustration, title, percentage,
+ * description. The frame's percentage line reads `37% Complete`; see
+ * `OVERLAYS_COPY.success.progress` for why this shows the real value.
  *
  * Same illustration caveat as `LoadingOverlay`.
  */
-export function SuccessOverlay() {
+export function SuccessOverlay({ progress }: SuccessOverlayProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center">
       <div className="absolute inset-x-0 top-[50px] bottom-0 bg-black/10" />
@@ -19,8 +25,8 @@ export function SuccessOverlay() {
           {OVERLAYS_COPY.success.title}
         </h2>
 
-        <p className="mt-[25px] text-[16px] leading-6 text-viq-text-muted">
-          {OVERLAYS_COPY.success.progress}
+        <p className="mt-[25px] text-[14px] leading-5 text-viq-text-muted">
+          {OVERLAYS_COPY.success.progress(progress)}
         </p>
 
         <p className="mt-[13px] text-[18px] leading-7 text-viq-text-muted">

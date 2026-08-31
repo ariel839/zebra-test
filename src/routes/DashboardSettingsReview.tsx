@@ -16,7 +16,7 @@ import { ReviewLogoPanel } from '@/components/wizard/ReviewLogoPanel'
 import { ReviewRow } from '@/components/wizard/ReviewRow'
 import { WizardShell } from '@/components/wizard/WizardShell'
 import { REVIEW_COPY } from '@/content/review'
-import { COMPANY_NAMES } from '@/mocks/companyNames'
+import { COMPANY_NAMES, COMPANY_NAME_BADGE_TONES } from '@/mocks/companyNames'
 import { COMPANY_TREE } from '@/mocks/companyTree'
 import { CONTRACT_TYPES } from '@/mocks/contractTypes'
 import { useWizardStore } from '@/store/wizard'
@@ -28,7 +28,7 @@ const COMPANY_NAME_OPTIONS: SelectOption[] = COMPANY_NAMES.map((c) => ({
   id: c.id,
   label: c.label,
   badge: c.kind,
-  badgeTone: c.kind === 'Account' ? 'blue' : 'grey',
+  badgeTone: COMPANY_NAME_BADGE_TONES[c.kind],
 }))
 
 const AUTO_ADD_CONTRACTS_OPTIONS = [

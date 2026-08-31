@@ -13,7 +13,10 @@ export const OVERLAYS_COPY = {
   },
   success: {
     title: "You're All Set",
-    progress: '37% Complete', // Spec §7.6: Known designer bug — reproduced verbatim.
+    // The B10 frame strands '37% Complete' here (spec §7.6, a known designer
+    // bug). Client asked for the honest number, so this reads the real
+    // progress — which is always 100 by the time success shows.
+    progress: (pct: number) => `${pct}% Complete`,
     subtitle: 'Scanning and analysis are complete. Your data is ready.',
   },
 } as const

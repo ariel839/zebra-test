@@ -14,8 +14,11 @@ export interface SelectOption {
   label: string
   /** Optional right-hand type badge, e.g. 'Standard' | 'Subsidiary' | 'Account'. */
   badge?: string
-  /** 'Account' renders blue (B05); every other badge renders dark grey. */
-  badgeTone?: 'blue' | 'grey'
+  /**
+   * B05 draws one fill per kind: 'Account' blue, 'Standard' dark grey with white
+   * text, 'Subsidiary' light grey with dark text. Three tones, not two.
+   */
+  badgeTone?: BadgeTone
 }
 
 export interface SelectProps {
@@ -33,9 +36,12 @@ export interface SelectProps {
   forceTooltipOpen?: boolean
 }
 
-const BADGE_TONE_CLASSES: Record<'blue' | 'grey', string> = {
+export type BadgeTone = 'blue' | 'grey' | 'grey-light'
+
+const BADGE_TONE_CLASSES: Record<BadgeTone, string> = {
   blue: 'bg-viq-primary text-white',
-  grey: 'bg-viq-text-muted text-white',
+  grey: 'bg-viq-badge-grey text-white',
+  'grey-light': 'bg-viq-badge-grey-light text-viq-text',
 }
 
 /**
@@ -132,7 +138,8 @@ export function Select({
                   {o.badge && (
                     <span
                       className={cn(
-                        'shrink-0 rounded-viq-pill px-2 py-0.5 text-[11px] font-medium whitespace-nowrap',
+                        'shrink-0 rounded-viq-pill px-1.5 py-0.5 whitespace-nowrap',
+                        'text-[12px] leading-4 font-medium',
                         BADGE_TONE_CLASSES[o.badgeTone ?? 'grey'],
                       )}
                     >
