@@ -31,7 +31,7 @@ Every task's requirements implicitly include this section.
 - **No new dependencies** beyond those named in Task 1. Specifically banned: a second state library, a form library (unless the tree-select genuinely forces it — ask first), an unagreed component library, an animation library, i18n, analytics.
 - **No test runner.** Decided by the user. Verification is a scripted manual check per task plus a side-by-side against the Figma frame. Every task's final verification step is mandatory and must actually be run — do not mark a task done on inspection alone.
 - **Never mark a screen done without a side-by-side against its PNG in `wizard-spec-files/screens/`.** Each task names the exact files.
-- **Every screen must be reachable from the guided flow** (Task 18). When a task adds a state, it also registers that state in `src/flow/screens.ts`. A screen that exists but cannot be reached is not done.
+- **Every screen must be reachable from the guided flow.** Task 17 builds the registry centrally and walks all 31 built screens; individual tasks do not register their own. A screen that exists but Task 17 cannot reach is not done.
 - **Ask before deviating from the Figma.** "It looked better this way" is not a reason.
 - **Commit after every task.** Conventional-commit prefixes (`chore:`, `feat:`, `fix:`, `docs:`).
 
@@ -115,7 +115,7 @@ zebra-viq-wizard/
     │   ├── FieldLabel.tsx  Tooltip.tsx  Checkbox.tsx  RadioGroup.tsx
     │   ├── Select.tsx  MultiSelect.tsx
     │   ├── Chip.tsx  ChipGroup.tsx  Tag.tsx
-    │   ├── UploadButton.tsx  Modal.tsx  DataTable.tsx
+    │   ├── UploadButton.tsx  Modal.tsx  DataTable.tsx  IconButton.tsx
     │   └── TreeSelect/
     │       ├── types.ts              CompanyNode, TreeSelectProps
     │       ├── treeSelection.ts      PURE selection math — the risky logic
@@ -130,8 +130,13 @@ zebra-viq-wizard/
     │   ├── WizardTopStrip.tsx  SideNav.tsx  WizardBottomStrip.tsx
     │   ├── LoadingOverlay.tsx  SuccessOverlay.tsx
     │   ├── ExistingDashboardsModal.tsx   ONE component, data-driven (F and G)
-    │   └── ReviewRow.tsx
+    │   ├── ReviewRow.tsx  ReviewLogoPanel.tsx
+    │   └── FlowBar.tsx                    guided-flow chrome (Task 17)
+    ├── flow/
+    │   ├── screens.ts                registry of all 31 built screens (Task 17)
+    │   └── demoState.ts              additive hover/open overrides for the flow
     └── routes/
+        ├── Flow.tsx                  /flow and /flow/:screenId
         ├── Overview.tsx              Row A
         ├── DashboardSettings.tsx     /setup — picks form vs review off ?mode
         ├── DashboardSettingsForm.tsx Rows B, C, D, F, G
@@ -2063,6 +2068,19 @@ Nothing is applied until `Apply Filters` — `C4` is explicitly "Selected filter
 
 `TreeSelect` — not `TreeSelectPanel` — owns `countries: string[]` and `filterPanelOpen: boolean`, because the panel is a sibling of the tree panel and must survive independently of it. Pass `countries` down into `filterTree`. The funnel button inside the tree's search bar toggles `filterPanelOpen` and carries a dark count badge when `countries.length > 0` (`1` in C5).
 
+Build the funnel button inline here with its badge; Task 14 Step 2 retrofits it to `IconButton` once that exists.
+
+**Add two optional props to `TreeSelect` for the guided flow (Task 17):**
+
+```ts
+  /** Seeds the applied country filter. Task 17 drives the C5 screen through this. */
+  defaultCountries?: string[]
+  /** Opens the tree panel on mount. Task 17 drives B06 and C1–C5 through this. */
+  defaultOpen?: boolean
+```
+
+They seed the initial state and nothing more — normal interaction must still override them freely. This is the seam the flow uses instead of reaching into component internals.
+
 - [ ] **Step 4: Verify against all five C frames**
 
 At `/sandbox/tree-select`, side by side with each PNG:
@@ -2125,9 +2143,12 @@ export function ChipGroup({ labels, max = 2, onRemove }: ChipGroupProps) {
 
 **Chip hover, from `screens/B08_logo-chip-button-hover__10489-79003.png`:** the chip grows an `×` and takes a blue border. So `Chip` renders its `×` only on hover (or keyboard focus, for a11y) and swaps its border to `--color-viq-border-focus`. Reserve the `×`'s width in the resting state so the chip does not jump on hover. The `+N` chip is not removable and has no hover treatment.
 
-- [ ] **Step 2: Wire chips into TreeSelect**
+- [ ] **Step 2: Wire chips into TreeSelect and MultiSelect**
 
-Replace Task 8 Step 5's placeholder count with `<ChipGroup labels={rollUpSelection(tree, selected)} max={2} />` rendered below the trigger.
+Two call sites, both replacing placeholder rendering left behind by earlier tasks:
+
+1. **TreeSelect** — replace Task 8 Step 5's placeholder count with `<ChipGroup labels={rollUpSelection(tree, selected)} max={2} />` below the trigger.
+2. **MultiSelect** — replace Task 7's plain comma-separated text with `<ChipGroup labels={value} max={2} />` below the trigger. Task 7 shipped the text form only because `ChipGroup` did not exist yet; this is the swap it was waiting for. The trigger keeps showing its placeholder in both cases.
 
 - [ ] **Step 3: Verify against B7 `10489:78667` and B8 `10489:79003`**
 
@@ -2693,15 +2714,18 @@ interface DemoState {
   hover: string | null
   /** e.g. 'select:companyName', 'tree', 'filterPanel', 'tooltip:accountNumber'. */
   open: string | null
-  set: (patch: Partial<Pick<DemoState, 'hover' | 'open'>>) => void
+  /** Seeds TreeSelect's applied country filter via its `defaultCountries` prop (Task 9). */
+  countries: string[] | null
+  set: (patch: Partial<Pick<DemoState, 'hover' | 'open' | 'countries'>>) => void
   clear: () => void
 }
 
 export const useDemoStore = create<DemoState>((set) => ({
   hover: null,
   open: null,
+  countries: null,
   set: (patch) => set(patch),
-  clear: () => set({ hover: null, open: null }),
+  clear: () => set({ hover: null, open: null, countries: null }),
 }))
 ```
 
@@ -2750,8 +2774,7 @@ Each is a few lines against the two stores. Examples covering each kind:
 
 // C5 — filters applied, badge on the funnel
 { id: 'C5', route: '/setup', setup: () => {
-    useDemoStore.getState().set({ open: 'tree' })
-    useTreeFilterState.getState().apply(['Canada'])   // or whatever Task 9 exposes
+    useDemoStore.getState().set({ open: 'tree', countries: ['Canada'] })
   } },
 
 // F4 — hover the None row
@@ -2770,7 +2793,7 @@ Each is a few lines against the two stores. Examples covering each kind:
 
 Add a `FILLED_FORM` constant to `src/flow/screens.ts` matching `B07`: account `189189189`, company `Euro Car Parts`, display name `Euro Car Parts`, email `Useremail@gmail.com`, contract types `IOT Mobile Computer` + `IOT Printer`, and enough tree selections that the overflow chip reads `+30` in `R3`.
 
-If Task 9's filter state is component-local rather than a store, lift just enough of it to be drivable — or give `TreeSelect` an optional `initialCountries` prop the flow can set. Do not duplicate the filter logic.
+`TreeSelect` already exposes `defaultCountries` and `defaultOpen` for exactly this (Task 9 Step 3). Feed them from the demo store; do not duplicate the filter logic and do not reach into component internals.
 
 - [ ] **Step 5: Verify**
 
