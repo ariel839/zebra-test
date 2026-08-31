@@ -3,9 +3,28 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ChipGroup } from '@/components/ui/ChipGroup'
 import { FieldLabel } from '@/components/ui/FieldLabel'
 import { cn } from '@/lib/cn'
-import { rollUpSelection } from './treeSelection'
+import { FilterPanel } from './FilterPanel'
+import { collectLeafIds, rollUpSelection } from './treeSelection'
 import { TreeSelectPanel } from './TreeSelectPanel'
 import type { CompanyNode } from './types'
+
+/**
+ * Depth-first search for the node whose `label` matches a roll-up chip.
+ * Roll-up labels are only ever produced (by `rollUpSelection`) for nodes
+ * that are fully checked, so a match here always exists for a chip that
+ * came from this tree — but the lookup is written defensively (`undefined`
+ * on a miss) rather than assuming that invariant.
+ */
+function findNodeByLabel(nodes: CompanyNode[], label: string): CompanyNode | undefined {
+  for (const node of nodes) {
+    if (node.label === label) return node
+    if (node.children) {
+      const hit = findNodeByLabel(node.children, label)
+      if (hit) return hit
+    }
+  }
+  return undefined
+}
 
 export interface TreeSelectProps {
   label: string
@@ -52,12 +71,18 @@ export function TreeSelect({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(defaultOpen)
   const [query, setQuery] = useState('')
-  // Task 9 adds the country filter panel and the setter that drives it; for
-  // now `defaultCountries` only seeds the initial applied filter.
-  const [countries] = useState<string[]>(defaultCountries ?? [])
+  const [countries, setCountries] = useState<string[]>(defaultCountries ?? [])
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false)
 
   const selected = useMemo(() => new Set(value), [value])
   const rollUp = useMemo(() => rollUpSelection(tree, selected), [tree, selected])
+
+  function handleChipRemove(label: string) {
+    const node = findNodeByLabel(tree, label)
+    if (!node) return
+    const toRemove = new Set(collectLeafIds(node))
+    onChange(value.filter((id) => !toRemove.has(id)))
+  }
 
   useEffect(() => {
     if (!open) return
@@ -102,19 +127,25 @@ export function TreeSelect({
             query={query}
             onQueryChange={setQuery}
             countries={countries}
-            onFilterClick={() => {
-              // Task 9 wires the country filter panel itself; this seam
-              // (and the `countries`/`filterCount` state above) exists so
-              // that task is a pure addition rather than a rewrite of
-              // TreeSelect's internals.
-            }}
+            onFilterClick={() => setFilterPanelOpen((o) => !o)}
             filterCount={countries.length}
           />
         )}
+        {/* Sibling of TreeSelectPanel, not nested inside it — the country
+            filter is a separate floating panel that sits to the right of
+            the form while the tree stays open underneath (spec §4 v4,
+            frames C1-C5). */}
+        <FilterPanel
+          open={filterPanelOpen}
+          onClose={() => setFilterPanelOpen(false)}
+          value={countries}
+          onApply={(next) => setCountries(next)}
+          onClearAll={() => setCountries([])}
+        />
       </div>
       {rollUp.length > 0 && (
         <div className="mt-1.5">
-          <ChipGroup labels={rollUp} max={2} />
+          <ChipGroup labels={rollUp} max={2} onRemove={handleChipRemove} />
         </div>
       )}
     </div>

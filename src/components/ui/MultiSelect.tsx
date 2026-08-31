@@ -109,7 +109,11 @@ export function MultiSelect({
       </div>
       {value.length > 0 && (
         <div className="mt-1.5">
-          <ChipGroup labels={value} max={2} />
+          <ChipGroup
+            labels={value}
+            max={2}
+            onRemove={(label) => onChange(value.filter((v) => v !== label))}
+          />
         </div>
       )}
     </div>
