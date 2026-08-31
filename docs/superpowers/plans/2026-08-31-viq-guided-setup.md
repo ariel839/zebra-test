@@ -413,6 +413,10 @@ export const DESIGN_HEIGHT = 1080
  * `position: absolute`. See Global Constraints.
  */
 export function ScaleToFit({ children }: { children: ReactNode }) {
+  // NOTE: `grid place-items-center` does NOT work here. A CSS transform does not
+  // affect layout, so once the 1920x1080 child overflows a smaller container the
+  // grid track anchors it top-left and the canvas clips to the bottom-right corner.
+  // Absolute + translate(-50%,-50%) is immune to that. Verified at 800x600 and 1024x768.
   const [scale, setScale] = useState(1)
 
   useEffect(() => {
@@ -429,15 +433,18 @@ export function ScaleToFit({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <div className="grid h-full w-full place-items-center overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden bg-black">
       <div
         style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
           width: DESIGN_WIDTH,
           height: DESIGN_HEIGHT,
-          transform: `scale(${scale})`,
+          transform: `translate(-50%, -50%) scale(${scale})`,
           transformOrigin: 'center center',
         }}
-        className="relative shrink-0 bg-white"
+        className="bg-white"
       >
         {children}
       </div>
@@ -2859,7 +2866,7 @@ screens in the order they appear on the Figma canvas; the dropdown jumps straigh
 
 Spec §7.5 — every typo reproduced in the build, with where it appears, so the client can rule on each one. Include the Success-overlay "37% Complete" question (§7.6) and the sidebar-contrast question (§7.7) at the bottom under "Design questions". Pull the exact strings from `docs/figma-capture.md`.
 
-At minimum: `confgure`, `notifed`, `identifer`, `data fow`, `service ofer`, `refect`, `Select compony name...`, `Euro Car Parts Irland`, and `LKG Corporation` in the Company Name dropdown where the tree says `LKQ`.
+At minimum: `confgure`, `notifed`, `identifer`, `data fow`, `service ofer`, `refect`, `Select compony name...`, `Euro Car Parts Irland`, `LKG Corporation` in the Company Name dropdown where the tree says `LKQ`, and **`input felds`** in the Overview intro paragraph — this last one was found during the build by transcribing the frame directly; it appears in no earlier spec list.
 
 Design questions to list alongside them: the success overlay has no dismiss control (§7.8); edit mode's primary button reads `Edit`, not `Save` (§7.6); the email appears as `Useremail@gmail.com` in the form frames and `Useremail@Gmail.Com` in `R3` (§7.7); sidebar items 2–7 are inert but full-contrast (§7.9); `R3` has no edit control of its own.
 
