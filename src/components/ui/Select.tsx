@@ -27,6 +27,10 @@ export interface SelectProps {
   onChange: (id: string) => void
   options: SelectOption[]
   placeholder: string
+  /** Forces the dropdown open, additively. See `Tooltip`'s `forceOpen` for the pattern. */
+  forceOpen?: boolean
+  /** Forwarded to `FieldLabel`'s `forceTooltipOpen` (Row D). */
+  forceTooltipOpen?: boolean
 }
 
 const BADGE_TONE_CLASSES: Record<'blue' | 'grey', string> = {
@@ -47,8 +51,11 @@ export function Select({
   onChange,
   options,
   placeholder,
+  forceOpen,
+  forceTooltipOpen,
 }: SelectProps) {
-  const [open, setOpen] = useState(false)
+  const [localOpen, setOpen] = useState(false)
+  const open = localOpen || forceOpen
   const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -71,7 +78,12 @@ export function Select({
 
   return (
     <div className="flex flex-col" ref={root}>
-      <FieldLabel label={label} required={required} tooltip={tooltip} />
+      <FieldLabel
+        label={label}
+        required={required}
+        tooltip={tooltip}
+        forceTooltipOpen={forceTooltipOpen}
+      />
       <div className="relative">
         <button
           type="button"

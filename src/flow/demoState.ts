@@ -19,11 +19,11 @@ import { create } from 'zustand'
  * Every consuming component ORs the forced value into its own state. It
  * NEVER replaces it:
  *
- *   const forced = useDemoStore((s) => s.hover === 'field:accountNumber')
+ *   const forced = useForcedHover('field:accountNumber')
  *   const isHovered = localHover || forced   // additive — NEVER `= forced`
  *
  * Outside the flow (i.e. on any ordinary route — `/setup`, `/`, etc.) this
- * store is never written to, so `hover` and `open` are always `null`, so
+ * store is never written to, so `hover` and `open` are always `[]`, so
  * `forced` is always `false` for every key, so `isHovered` reduces to
  * exactly `localHover` — today's behaviour, untouched. An override that
  * *replaces* local state (`isHovered = forced`) would break real interaction
@@ -54,35 +54,62 @@ import { create } from 'zustand'
  *   open:  'select:companyName', 'tree', 'filterPanel', 'tooltip:accountNumber'
  * Pick one key per forceable target and keep it stable — `screens.ts` and the
  * component's OR-site must agree on the exact string.
+ *
+ * `hover` and `open` are both arrays, not a single string — a handful of
+ * frames genuinely need more than one target forced at once (B08 forces the
+ * logo card AND a contract-type chip hovered simultaneously; C1-C5 force the
+ * tree dropdown AND the country filter panel open at once). `useForcedHover`
+ * / `useForcedOpen` test membership, so a single-target screen just passes a
+ * one-element array and everything above still holds.
+ *
+ * `filterQuery` / `filterDraft` are the same kind of seed as `countries`
+ * above, one level deeper: they seed `FilterPanel`'s own local `query` /
+ * `draft` state (via its `defaultQuery` / `defaultDraft` props) for the C2
+ * ("Type country/region") and C4 ("Selected filter, apply") frames, exactly
+ * the way `countries` seeds `TreeSelect`'s `defaultCountries`. Same caveat:
+ * these only seed *initial* state, so they rely on the same per-screen
+ * remount `Flow.tsx` already does for `TreeSelect`.
  */
 
 export interface DemoState {
-  /** Which single hover target is forced on, or null. See key examples above. */
-  hover: string | null
-  /** Which single open/expanded target is forced on, or null. See key examples above. */
-  open: string | null
+  /** Which hover targets are forced on. See key examples above. */
+  hover: string[]
+  /** Which open/expanded targets are forced on. See key examples above. */
+  open: string[]
   /** Seeds TreeSelect's applied country filter via its `defaultCountries` prop (Task 9). */
   countries: string[] | null
-  set: (patch: Partial<Pick<DemoState, 'hover' | 'open' | 'countries'>>) => void
-  /** Resets all three to null. Called by the flow route on every screen change. */
+  /** Seeds FilterPanel's `defaultQuery` (C2/C3 — a country name typed but not yet added). */
+  filterQuery: string | null
+  /** Seeds FilterPanel's `defaultDraft` (C4 — a country staged but not yet applied). */
+  filterDraft: string[] | null
+  set: (
+    patch: Partial<Pick<DemoState, 'hover' | 'open' | 'countries' | 'filterQuery' | 'filterDraft'>>,
+  ) => void
+  /** Resets everything to its empty default. Called by the flow route on every screen change. */
   clear: () => void
 }
 
+const EMPTY: DemoState['hover'] = []
+
 export const useDemoStore = create<DemoState>((set) => ({
-  hover: null,
-  open: null,
+  hover: EMPTY,
+  open: EMPTY,
   countries: null,
+  filterQuery: null,
+  filterDraft: null,
   set: (patch) => set(patch),
-  clear: () => set({ hover: null, open: null, countries: null }),
+  clear: () =>
+    set({ hover: EMPTY, open: EMPTY, countries: null, filterQuery: null, filterDraft: null }),
 }))
 
 /**
  * Typed helper so call sites compare against a key without stringly-typing
- * `useDemoStore((s) => s.hover === key)` at every OR-site. Returns `false`
- * for every key when the store is empty (the default, outside the flow).
+ * `useDemoStore((s) => s.hover.includes(key))` at every OR-site. Returns
+ * `false` for every key when the store is empty (the default, outside the
+ * flow).
  */
 export function useForcedHover(key: string): boolean {
-  return useDemoStore((s) => s.hover === key)
+  return useDemoStore((s) => s.hover.includes(key))
 }
 
 /**
@@ -90,5 +117,5 @@ export function useForcedHover(key: string): boolean {
  * Returns `false` for every key when the store is empty.
  */
 export function useForcedOpen(key: string): boolean {
-  return useDemoStore((s) => s.open === key)
+  return useDemoStore((s) => s.open.includes(key))
 }

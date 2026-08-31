@@ -38,6 +38,12 @@ export interface TreeSelectProps {
   defaultCountries?: string[]
   /** Opens the tree panel on mount. */
   defaultOpen?: boolean
+  /** Opens the country filter panel on mount (demo flow only — C1-C5). */
+  defaultFilterPanelOpen?: boolean
+  /** Forwarded to `FilterPanel`'s `defaultQuery` (demo flow only — C2/C3). */
+  defaultFilterQuery?: string
+  /** Forwarded to `FilterPanel`'s `defaultDraft` (demo flow only — C4). */
+  defaultFilterDraft?: string[]
   className?: string
 }
 
@@ -65,6 +71,9 @@ export function TreeSelect({
   placeholder = 'Select all valid names',
   defaultCountries,
   defaultOpen = false,
+  defaultFilterPanelOpen = false,
+  defaultFilterQuery,
+  defaultFilterDraft,
   className,
 }: TreeSelectProps) {
   const id = useId()
@@ -72,7 +81,7 @@ export function TreeSelect({
   const [open, setOpen] = useState(defaultOpen)
   const [query, setQuery] = useState('')
   const [countries, setCountries] = useState<string[]>(defaultCountries ?? [])
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false)
+  const [filterPanelOpen, setFilterPanelOpen] = useState(defaultFilterPanelOpen)
 
   const selected = useMemo(() => new Set(value), [value])
   const rollUp = useMemo(() => rollUpSelection(tree, selected), [tree, selected])
@@ -141,6 +150,8 @@ export function TreeSelect({
           value={countries}
           onApply={(next) => setCountries(next)}
           onClearAll={() => setCountries([])}
+          defaultQuery={defaultFilterQuery}
+          defaultDraft={defaultFilterDraft}
         />
       </div>
       {rollUp.length > 0 && (

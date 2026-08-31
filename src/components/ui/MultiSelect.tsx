@@ -13,6 +13,8 @@ export interface MultiSelectProps {
   onChange: (value: string[]) => void
   options: readonly string[]
   placeholder: string
+  /** Forwarded to the selected-chips `ChipGroup`'s `forceHoverLabel` (B08). */
+  forceChipHoverLabel?: string
 }
 
 /**
@@ -31,6 +33,7 @@ export function MultiSelect({
   onChange,
   options,
   placeholder,
+  forceChipHoverLabel,
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
@@ -113,6 +116,7 @@ export function MultiSelect({
             labels={value}
             max={2}
             onRemove={(label) => onChange(value.filter((v) => v !== label))}
+            forceHoverLabel={forceChipHoverLabel}
           />
         </div>
       )}

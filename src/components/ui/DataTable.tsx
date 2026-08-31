@@ -16,6 +16,12 @@ export interface DataTableProps<T extends { id: string }> {
   onSelect?: (id: string) => void
   /** Rendered in a trailing cell on row hover. Return null to show nothing. */
   rowAction?: (row: T) => ReactNode
+  /**
+   * Forces one row's hover/reveal treatment on, additively — real
+   * `:hover` / `:focus-within` keeps working regardless. `null`/`undefined`
+   * forces nothing (today's behaviour).
+   */
+  forceHoverRowId?: string | null
   className?: string
 }
 
@@ -31,6 +37,7 @@ export function DataTable<T extends { id: string }>({
   selectedId,
   onSelect,
   rowAction,
+  forceHoverRowId,
   className,
 }: DataTableProps<T>) {
   return (
@@ -52,6 +59,7 @@ export function DataTable<T extends { id: string }>({
       <tbody>
         {rows.map((row) => {
           const selected = row.id === selectedId
+          const forced = row.id === forceHoverRowId
           return (
             <tr
               key={row.id}
@@ -60,6 +68,7 @@ export function DataTable<T extends { id: string }>({
                 'group border-b border-viq-border last:border-b-0 hover:bg-viq-surface-hover',
                 onSelect && 'cursor-pointer',
                 selected && 'bg-viq-nav-active',
+                forced && 'bg-viq-surface-hover',
               )}
             >
               {columns.map((column) => (
@@ -68,7 +77,12 @@ export function DataTable<T extends { id: string }>({
                 </td>
               ))}
               <td className="w-12 px-2 py-3">
-                <div className="opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                <div
+                  className={cn(
+                    'opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100',
+                    forced && 'opacity-100',
+                  )}
+                >
                   {rowAction?.(row)}
                 </div>
               </td>

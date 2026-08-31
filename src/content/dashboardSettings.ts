@@ -68,5 +68,9 @@ export const DASHBOARD_SETTINGS_COPY = {
     contractType: 'Select which contract types this dashboard should track.',
     // PLACEHOLDER — not shown in any Row D frame. Derive from OVERVIEW_COPY once Task 4 lands.
     userEmail: 'Enter the email address that should receive dashboard notifications.',
+    // PLACEHOLDER — D3 (`10489:76248`) shows the Submit button in a hover
+    // state with a tooltip open, but the tooltip copy wasn't legible in
+    // that frame's export. Best-effort text pending a designer check.
+    submit: 'Submit your dashboard settings to create this dashboard.',
   },
 } as const

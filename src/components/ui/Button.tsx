@@ -9,6 +9,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize
   leftIcon?: ReactNode
   rightIcon?: ReactNode
+  /**
+   * Forces the button's hover treatment on, additively — real `hover:`
+   * keeps working regardless. Undefined/false forces nothing (today's
+   * behaviour).
+   */
+  forceHover?: boolean
 }
 
 export function Button({
@@ -16,6 +22,7 @@ export function Button({
   size = 'md',
   leftIcon,
   rightIcon,
+  forceHover,
   className,
   children,
   ...rest
@@ -30,10 +37,14 @@ export function Button({
         size === 'sm' && 'px-3 h-7',
         'disabled:cursor-not-allowed disabled:opacity-40',
         variant === 'primary' &&
-          'bg-viq-primary text-white hover:bg-viq-primary-hover',
+          cn('bg-viq-primary text-white hover:bg-viq-primary-hover', forceHover && 'bg-viq-primary-hover'),
         variant === 'outline' &&
-          'border border-viq-border text-viq-text hover:bg-viq-surface-hover',
-        variant === 'ghost' && 'text-viq-text hover:bg-viq-surface-hover',
+          cn(
+            'border border-viq-border text-viq-text hover:bg-viq-surface-hover',
+            forceHover && 'bg-viq-surface-hover',
+          ),
+        variant === 'ghost' &&
+          cn('text-viq-text hover:bg-viq-surface-hover', forceHover && 'bg-viq-surface-hover'),
         className,
       )}
       {...rest}

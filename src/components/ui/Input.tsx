@@ -1,7 +1,13 @@
 import type { InputHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement>
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  /**
+   * Forces the hover border treatment on, additively — real `hover:` keeps
+   * working regardless. Undefined/false forces nothing (today's behaviour).
+   */
+  forceHover?: boolean
+}
 
 /**
  * `w-[260px]` matches the spec §2 form grid (two-column, 260px controls).
@@ -19,13 +25,14 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement>
  * (`border-viq-primary` / a primary-tinted ring) so the control is usably
  * accessible, not a transcription of B04.
  */
-export function Input({ className, ...rest }: InputProps) {
+export function Input({ className, forceHover, ...rest }: InputProps) {
   return (
     <input
       className={cn(
         'h-10 w-[260px] rounded-viq-control border border-viq-border bg-white px-3 text-sm',
         'text-viq-text placeholder:text-viq-text-placeholder',
         'hover:border-viq-border-hover',
+        forceHover && 'border-viq-border-hover',
         'focus:border-viq-primary focus:outline-none focus:ring-2 focus:ring-viq-primary/20',
         'disabled:cursor-not-allowed disabled:bg-viq-surface-disabled',
         className,

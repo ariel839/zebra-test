@@ -8,6 +8,7 @@ import { InputWithHeader } from '@/components/ui/InputWithHeader'
 import { MultiSelect } from '@/components/ui/MultiSelect'
 import { RadioGroup } from '@/components/ui/RadioGroup'
 import { Select, type SelectOption } from '@/components/ui/Select'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { TreeSelect } from '@/components/ui/TreeSelect/TreeSelect'
 import { UploadButton } from '@/components/ui/UploadButton'
 import { ExistingDashboardsModal } from '@/components/wizard/ExistingDashboardsModal'
@@ -15,6 +16,7 @@ import { LoadingOverlay } from '@/components/wizard/LoadingOverlay'
 import { SuccessOverlay } from '@/components/wizard/SuccessOverlay'
 import { WizardShell } from '@/components/wizard/WizardShell'
 import { DASHBOARD_SETTINGS_COPY } from '@/content/dashboardSettings'
+import { useDemoStore, useForcedHover, useForcedOpen } from '@/flow/demoState'
 import { COMPANY_NAMES } from '@/mocks/companyNames'
 import { COMPANY_TREE } from '@/mocks/companyTree'
 import { CONTRACT_TYPES } from '@/mocks/contractTypes'
@@ -67,6 +69,21 @@ export function DashboardSettingsForm() {
   const selectExistingDashboard = useWizardStore((s) => s.selectExistingDashboard)
   const createNewDashboard = useWizardStore((s) => s.createNewDashboard)
 
+  // Demo-flow OR-sites (Row B/C/D). Every one of these is `false` outside
+  // `/flow` (the store is never written to there), so every prop below
+  // reduces to its normal default and real interaction is unaffected.
+  const forceAccountNumberHover = useForcedHover('field:accountNumber')
+  const forceAccountNumberTooltip = useForcedOpen('tooltip:accountNumber')
+  const forceCompanyNameOpen = useForcedOpen('select:companyName')
+  const forceCompanyNameTooltip = useForcedOpen('tooltip:companyName')
+  const forceTreeOpen = useForcedOpen('tree')
+  const forceFilterPanelOpen = useForcedOpen('filterPanel')
+  const demoCountries = useDemoStore((s) => s.countries)
+  const demoFilterQuery = useDemoStore((s) => s.filterQuery)
+  const demoFilterDraft = useDemoStore((s) => s.filterDraft)
+  const forceChipHover = useForcedHover('chip:ecp')
+  const forceSubmitTooltip = useForcedOpen('tooltip:submit')
+
   // Display Name defaults to the chosen Company Name's label, but must never
   // clobber something the user typed. Compare against the LABEL of the
   // previously selected option (not its id) — two Company Name options share
@@ -95,9 +112,22 @@ export function DashboardSettingsForm() {
             >
               {buttons.back}
             </Button>
-            <Button variant="primary" disabled={!isValid} onClick={submit}>
-              {buttons.submit}
-            </Button>
+            <Tooltip content={tooltips.submit} forceOpen={forceSubmitTooltip}>
+              <Button
+                variant="primary"
+                // Forcing the tooltip open (D3) also shows the button's own
+                // hover treatment, and — since D3's frame renders it fully
+                // enabled against this step's otherwise-empty form — briefly
+                // lifts `disabled` for that forced state only; real
+                // interaction (forceSubmitTooltip always false outside the
+                // flow) still gates entirely on `isValid`.
+                disabled={!isValid && !forceSubmitTooltip}
+                forceHover={forceSubmitTooltip}
+                onClick={submit}
+              >
+                {buttons.submit}
+              </Button>
+            </Tooltip>
           </>
         }
       >
@@ -108,6 +138,8 @@ export function DashboardSettingsForm() {
                 label={labels.accountNumber}
                 required
                 tooltip={tooltips.accountNumber}
+                forceTooltipOpen={forceAccountNumberTooltip}
+                forceHover={forceAccountNumberHover}
                 placeholder={placeholders.accountNumber}
                 value={form.accountNumber}
                 onChange={(e) => setField('accountNumber', e.target.value)}
@@ -119,6 +151,8 @@ export function DashboardSettingsForm() {
                 label={labels.companyName}
                 required
                 tooltip={tooltips.companyName}
+                forceTooltipOpen={forceCompanyNameTooltip}
+                forceOpen={forceCompanyNameOpen}
                 placeholder={placeholders.companyName}
                 value={form.companyName}
                 onChange={handleCompanyNameChange}
@@ -167,6 +201,11 @@ export function DashboardSettingsForm() {
                   onChange={(ids) => setField('validCompanyNames', ids)}
                   tree={COMPANY_TREE}
                   placeholder={placeholders.validCompanyNames}
+                  defaultOpen={forceTreeOpen}
+                  defaultCountries={demoCountries ?? undefined}
+                  defaultFilterPanelOpen={forceFilterPanelOpen}
+                  defaultFilterQuery={demoFilterQuery ?? undefined}
+                  defaultFilterDraft={demoFilterDraft ?? undefined}
                 />
               </Col>
             )}
@@ -179,6 +218,7 @@ export function DashboardSettingsForm() {
                 onChange={(v) => setField('contractTypes', v)}
                 options={CONTRACT_TYPES}
                 placeholder={placeholders.contractType}
+                forceChipHoverLabel={forceChipHover ? 'IOT Mobile Computer' : undefined}
               />
             </Col>
           </Strip>

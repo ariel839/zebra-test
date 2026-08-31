@@ -11,6 +11,12 @@ export interface ChipProps {
    */
   hoverable?: boolean
   className?: string
+  /**
+   * Forces the hover reveal (× + focus-color border) on, additively — real
+   * `hover:`/`group-hover:` keeps working regardless. Undefined/false
+   * forces nothing (today's behaviour).
+   */
+  forceHover?: boolean
 }
 
 /**
@@ -27,13 +33,14 @@ export interface ChipProps {
  * consistent everywhere a hoverable chip appears, whether or not this
  * particular call site has wired removal.
  */
-export function Chip({ label, onRemove, hoverable = true, className }: ChipProps) {
+export function Chip({ label, onRemove, hoverable = true, className, forceHover }: ChipProps) {
   return (
     <span
       className={cn(
         'group inline-flex items-center gap-1 whitespace-nowrap rounded-viq-control border px-2 py-1 text-xs text-viq-text',
         'border-viq-border',
         hoverable && 'hover:border-viq-border-focus focus-within:border-viq-border-focus',
+        hoverable && forceHover && 'border-viq-border-focus',
         className,
       )}
     >
@@ -48,6 +55,7 @@ export function Chip({ label, onRemove, hoverable = true, className }: ChipProps
               className={cn(
                 'flex items-center justify-center text-viq-icon-muted opacity-0',
                 'hover:text-viq-text group-hover:opacity-100 group-focus-within:opacity-100',
+                forceHover && 'opacity-100',
               )}
             >
               <X size={12} />
@@ -56,7 +64,10 @@ export function Chip({ label, onRemove, hoverable = true, className }: ChipProps
             <X
               size={12}
               aria-hidden="true"
-              className="text-viq-icon-muted opacity-0 group-hover:opacity-100"
+              className={cn(
+                'text-viq-icon-muted opacity-0 group-hover:opacity-100',
+                forceHover && 'opacity-100',
+              )}
             />
           )}
         </span>

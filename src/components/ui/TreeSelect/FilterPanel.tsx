@@ -1,5 +1,5 @@
 import { Search, X } from 'lucide-react'
-import { useEffect, useMemo, useState, type KeyboardEvent } from 'react'
+import { useMemo, useState, type KeyboardEvent } from 'react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { COUNTRIES } from '@/mocks/countries'
@@ -12,6 +12,14 @@ export interface FilterPanelProps {
   onApply: (countries: string[]) => void
   onClearAll: () => void
   className?: string
+  /**
+   * Seeds the search box on first mount (demo flow only — C2/C3, 'Ca' typed
+   * but not yet added). Only affects *initial* state, same caveat as
+   * `TreeSelect`'s `defaultOpen`/`defaultCountries`.
+   */
+  defaultQuery?: string
+  /** Seeds the staged (not-yet-applied) draft on first mount (demo flow only — C4). */
+  defaultDraft?: string[]
 }
 
 type FilterProperty = 'country' | 'region'
@@ -28,9 +36,14 @@ type FilterProperty = 'country' | 'region'
  * That wiring is a separate (deferred) pass — see the Task 9 report. This
  * component is fully self-contained and props-driven: it stages its own
  * draft from `value` and only calls `onApply`/`onClearAll` on explicit user
- * action. Closing via `×` (or the parent flipping `open` to `false`)
- * discards whatever draft was in progress; re-opening re-seeds it from the
- * latest `value`.
+ * action. Closing via `×` discards whatever draft was in progress — reset
+ * back to `value` (and the search box cleared) right there in that close
+ * handler, not in a "re-seed on reopen" effect: an effect keyed on `open`
+ * would also fire (twice, in dev Strict Mode) the moment this panel first
+ * mounts already forced open by the demo flow's `defaultQuery`/`defaultDraft`,
+ * wiping the very seed it's meant to show (C2-C4) before it ever painted.
+ * Resetting at close time instead means a fresh mount's seeded state is
+ * never touched unless the user actually cancels.
  */
 export function FilterPanel({
   open,
@@ -39,22 +52,12 @@ export function FilterPanel({
   onApply,
   onClearAll,
   className,
+  defaultQuery,
+  defaultDraft,
 }: FilterPanelProps) {
   const [property, setProperty] = useState<FilterProperty>('country')
-  const [query, setQuery] = useState('')
-  const [draft, setDraft] = useState<string[]>(value)
-
-  // Re-seed the draft from the committed value every time the panel opens,
-  // so a discarded (closed-without-applying) draft never leaks into the
-  // next session. Intentionally keyed on `open` only — `value` is read at
-  // the moment the panel opens, not tracked live while it stays open.
-  useEffect(() => {
-    if (!open) return
-    setDraft(value)
-    setQuery('')
-    setProperty('country')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  const [query, setQuery] = useState(defaultQuery ?? '')
+  const [draft, setDraft] = useState<string[]>(defaultDraft ?? value)
 
   // C3: the raw query is the FIRST row (`Ca`, then `Canada`, `Cambodia`,
   // `Cameroon`, `Cape Verde`) — unusual, and reproduced verbatim. Matches
@@ -100,6 +103,16 @@ export function FilterPanel({
 
   function handleApply() {
     onApply(draft)
+    setQuery('')
+    setProperty('country')
+    onClose()
+  }
+
+  /** The `×` close — discards the in-progress draft/search, unlike Apply. */
+  function handleCancel() {
+    setDraft(value)
+    setQuery('')
+    setProperty('country')
     onClose()
   }
 
@@ -116,7 +129,7 @@ export function FilterPanel({
         <button
           type="button"
           aria-label="Close filter panel"
-          onClick={onClose}
+          onClick={handleCancel}
           className="text-viq-icon-muted hover:text-viq-text"
         >
           <X size={18} />

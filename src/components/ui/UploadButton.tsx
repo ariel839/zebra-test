@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Upload, Pencil } from 'lucide-react'
 import { Button } from './Button'
 import { cn } from '@/lib/cn'
+import { useForcedHover } from '@/flow/demoState'
 
 export interface UploadButtonProps {
   value: string | null
@@ -12,7 +13,9 @@ export interface UploadButtonProps {
 export function UploadButton({ value, onChange, label }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const previousUrlRef = useRef<string | null>(null)
-  const [isHovered, setIsHovered] = useState(false)
+  const [localHovered, setIsHovered] = useState(false)
+  const forced = useForcedHover('logo')
+  const isHovered = localHovered || forced
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.[0]

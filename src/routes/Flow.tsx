@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router'
 import { FlowBar } from '@/components/wizard/FlowBar'
@@ -50,18 +50,31 @@ export function Flow() {
   // and what stops leftover state (e.g. R3's review data) from bleeding
   // into the next screen visited (e.g. a jump straight to B01).
   //
-  // useLayoutEffect (not useEffect) so this runs and settles before the
-  // browser paints — critical for TreeSelect, whose `defaultOpen` /
-  // `defaultCountries` only seed *initial* state on mount (see the risk
-  // called out in the task brief): the page below is given a `key` that
-  // changes with `screen.id`, so React fully unmounts and remounts it on
-  // every screen change, and this effect must have already applied the new
-  // demo-store values by the time that fresh mount reads them.
-  useLayoutEffect(() => {
+  // This runs inline during render (guarded by a ref, not in an effect —
+  // not even `useLayoutEffect`). That's deliberate, and the previous
+  // `useLayoutEffect` version here was a real, verified-by-screenshot bug:
+  // `<Page key={screen.id}>` below remounts on every screen change, and
+  // TreeSelect's `defaultOpen`/`defaultCountries`/`defaultFilterPanelOpen`/
+  // `defaultFilterQuery`/`defaultFilterDraft` only seed *initial* state on
+  // that fresh mount. An effect on the PARENT (`Flow`) — layout or
+  // otherwise — always fires *after* the child has already committed its
+  // first render, because the child had to render before this component's
+  // own commit (and therefore its effects) can happen at all. So the old
+  // `useLayoutEffect` reliably ran one commit too late: the fresh
+  // `TreeSelect` had already locked in `open: false` from the
+  // not-yet-cleared/not-yet-set-up store. Mutating the store here, in the
+  // render body, guarantees it happens before `<Page key={screen.id}>` is
+  // even created below, in the same pass. The `lastAppliedScreenId` guard
+  // makes this idempotent (safe under React 19 Strict Mode's double-render)
+  // and keeps it running once per screen change, exactly like the effect it
+  // replaces.
+  const lastAppliedScreenId = useRef<string | null>(null)
+  if (lastAppliedScreenId.current !== screen.id) {
+    lastAppliedScreenId.current = screen.id
     useWizardStore.getState().reset()
     useDemoStore.getState().clear()
     screen.setup()
-  }, [screen])
+  }
 
   const Page = ROUTE_PAGES[screen.route]
 

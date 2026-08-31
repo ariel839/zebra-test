@@ -5,6 +5,7 @@ import { IconButton } from '@/components/ui/IconButton'
 import { Modal } from '@/components/ui/Modal'
 import { Tag } from '@/components/ui/Tag'
 import { EXISTING_DASHBOARDS_COPY } from '@/content/existingDashboards'
+import { useDemoStore, useForcedHover } from '@/flow/demoState'
 import type { Dashboard } from '@/types/dashboard'
 
 export interface ExistingDashboardsModalProps {
@@ -80,6 +81,13 @@ export function ExistingDashboardsModal({
   showSearch = true,
   showDownload = true,
 }: ExistingDashboardsModalProps) {
+  // Additive OR-site: the flow forces at most one row's key ('row:<id>') at
+  // a time, so resolve it against this modal's own rows rather than
+  // hardcoding a specific id here.
+  const forcedHoverKeys = useDemoStore((s) => s.hover)
+  const forceHoverRowId = rows.find((r) => forcedHoverKeys.includes(`row:${r.id}`))?.id ?? null
+  const forceCreateNewHover = useForcedHover('button:createNew')
+
   return (
     <Modal
       open={open}
@@ -87,7 +95,7 @@ export function ExistingDashboardsModal({
       title={title}
       footer={
         <div className="flex justify-end">
-          <Button variant="outline" onClick={onCreateNew}>
+          <Button variant="outline" onClick={onCreateNew} forceHover={forceCreateNewHover}>
             {EXISTING_DASHBOARDS_COPY.createNew}
           </Button>
         </div>
@@ -112,6 +120,7 @@ export function ExistingDashboardsModal({
         <DataTable
           columns={COLUMNS}
           rows={rows}
+          forceHoverRowId={forceHoverRowId}
           rowAction={(row) =>
             row.supportedAction === 'None' ? null : (
               <Button

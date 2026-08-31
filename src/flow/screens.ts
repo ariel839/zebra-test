@@ -134,10 +134,8 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:76991',
     png: 'B03_field-hover__10489-76991.png',
     route: '/setup',
-    // NOT YET WIRED: Input.tsx has no useDemoStore OR-site (handoff table
-    // row 1). See task-17b-report.md.
     setup: () => {
-      useDemoStore.getState().set({ hover: 'field:accountNumber' })
+      useDemoStore.getState().set({ hover: ['field:accountNumber'] })
     },
   },
   {
@@ -146,14 +144,13 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:77480',
     png: 'B04_selected-field__10489-77480.png',
     route: '/setup',
-    // NOT YET WIRED. Per Input.tsx's own comment, B04's "selected" (focus)
-    // border colour is pixel-identical to B03's hover colour in the source
-    // frames (no distinct focus treatment was drawn) — so this reuses the
-    // same 'field:accountNumber' hover key rather than inventing a second,
-    // visually-identical one. Once row 1 of the handoff table is wired,
-    // B03 and B04 will render the same (correct) way.
+    // Per Input.tsx's own comment, B04's "selected" (focus) border colour is
+    // pixel-identical to B03's hover colour in the source frames (no
+    // distinct focus treatment was drawn) — so this reuses the same
+    // 'field:accountNumber' hover key rather than inventing a second,
+    // visually-identical one.
     setup: () => {
-      useDemoStore.getState().set({ hover: 'field:accountNumber' })
+      useDemoStore.getState().set({ hover: ['field:accountNumber'] })
     },
   },
   {
@@ -162,10 +159,8 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:77782',
     png: 'B05_regular-selection-dropdown__10489-77782.png',
     route: '/setup',
-    // NOT YET WIRED: Select.tsx has no useDemoStore OR-site (handoff table
-    // row 2 — 'select:companyName').
     setup: () => {
-      useDemoStore.getState().set({ open: 'select:companyName' })
+      useDemoStore.getState().set({ open: ['select:companyName'] })
     },
   },
   {
@@ -174,12 +169,8 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:78221',
     png: 'B06_3tier-dropdown-with-search__10489-78221.png',
     route: '/setup',
-    // NOT YET WIRED: TreeSelect itself already supports `defaultOpen`, but
-    // the call site (DashboardSettingsForm.tsx) doesn't yet forward
-    // `useForcedOpen('tree')` into it (handoff table row 4). Out of this
-    // pass's touchable files.
     setup: () => {
-      useDemoStore.getState().set({ open: 'tree' })
+      useDemoStore.getState().set({ open: ['tree'] })
     },
   },
   {
@@ -198,20 +189,14 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:79003',
     png: 'B08_logo-chip-button-hover__10489-79003.png',
     route: '/setup',
-    // Logo hover IS wired (UploadButton already has local isHovered state
-    // to OR into, handoff table row 8) — genuinely works once that one-line
-    // change lands. The chip hover this same Figma frame also shows
-    // ('IOT Mobile Computer ×', handoff table row 5, key 'chip:ecp') is
-    // NOT wired (Chip.tsx has no forceHover prop yet) — only one of the
-    // frame's two hover subjects can be forced at a time regardless, since
-    // `useDemoStore.hover` holds a single key. Filling the logo + a
-    // contract-type chip means both elements are at least visually present
-    // in their resting state so the frame's overall layout is reachable.
+    // Forces both hover subjects at once — the logo card AND the
+    // 'IOT Mobile Computer' contract-type chip — since `hover` is an array,
+    // not a single key.
     setup: () => {
       const w = useWizardStore.getState()
       w.setField('companyLogo', PLACEHOLDER_LOGO)
       w.setField('contractTypes', ['IOT Mobile Computer'])
-      useDemoStore.getState().set({ hover: 'logo' })
+      useDemoStore.getState().set({ hover: ['logo', 'chip:ecp'] })
     },
   },
   {
@@ -247,9 +232,10 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11153:92265',
     png: 'C1_click-filter-icon__11153-92265.png',
     route: '/setup',
-    // NOT YET WIRED (see C1-C5 note below the registry).
+    // Tree dropdown open + filter panel open, both empty — the panel just
+    // opened from the funnel icon, nothing typed or staged yet.
     setup: () => {
-      useDemoStore.getState().set({ open: 'tree' })
+      useDemoStore.getState().set({ open: ['tree', 'filterPanel'] })
     },
   },
   {
@@ -258,8 +244,9 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11137:85205',
     png: 'C2_type-country-region__11137-85205.png',
     route: '/setup',
+    // 'Ca' typed into the filter panel's search box, not yet added.
     setup: () => {
-      useDemoStore.getState().set({ open: 'tree' })
+      useDemoStore.getState().set({ open: ['tree', 'filterPanel'], filterQuery: 'Ca' })
     },
   },
   {
@@ -268,8 +255,10 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11137:89921',
     png: 'C3_suggested-search-results__11137-89921.png',
     route: '/setup',
+    // Same query as C2 — this frame is the suggestion list that renders
+    // underneath it once 'Ca' matches Canada/Cambodia/Cameroon/Cape Verde.
     setup: () => {
-      useDemoStore.getState().set({ open: 'tree' })
+      useDemoStore.getState().set({ open: ['tree', 'filterPanel'], filterQuery: 'Ca' })
     },
   },
   {
@@ -278,8 +267,11 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11153:91657',
     png: 'C4_selected-filter-apply__11153-91657.png',
     route: '/setup',
+    // Canada staged in the panel's draft (chip visible, Apply Filters
+    // enabled) but not yet committed — `countries` (the applied filter)
+    // stays unset here; only `filterDraft` seeds the panel's own state.
     setup: () => {
-      useDemoStore.getState().set({ open: 'tree', countries: ['Canada'] })
+      useDemoStore.getState().set({ open: ['tree', 'filterPanel'], filterDraft: ['Canada'] })
     },
   },
   {
@@ -288,8 +280,10 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11153:92575',
     png: 'C5_filters-applied__11153-92575.png',
     route: '/setup',
+    // Filter panel closed, applied filter committed — badge count shows on
+    // the funnel icon, tree stays open underneath.
     setup: () => {
-      useDemoStore.getState().set({ open: 'tree', countries: ['Canada'] })
+      useDemoStore.getState().set({ open: ['tree'], countries: ['Canada'] })
     },
   },
 
@@ -300,10 +294,8 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:80202',
     png: 'D1_tooltip-account-number__10489-80202.png',
     route: '/setup',
-    // NOT YET WIRED: Tooltip.tsx has no forceOpen prop, FieldLabel doesn't
-    // forward one (handoff table row 9).
     setup: () => {
-      useDemoStore.getState().set({ open: 'tooltip:accountNumber' })
+      useDemoStore.getState().set({ open: ['tooltip:accountNumber'] })
     },
   },
   {
@@ -313,7 +305,7 @@ export const FLOW_SCREENS: FlowScreen[] = [
     png: 'D2_tooltip-company-name__10489-80363.png',
     route: '/setup',
     setup: () => {
-      useDemoStore.getState().set({ open: 'tooltip:companyName' })
+      useDemoStore.getState().set({ open: ['tooltip:companyName'] })
     },
   },
   {
@@ -322,11 +314,12 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:76248',
     png: 'D3_tooltip-submit-hover__10489-76248.png',
     route: '/setup',
-    // NOT YET WIRED, and further out than D1/D2: the Submit button isn't
-    // wrapped in a Tooltip at all today (it's a bare <Button>), so this
-    // needs a Tooltip added around it, not just a forceOpen prop.
+    // The Submit button is wrapped in its own Tooltip (DashboardSettingsForm)
+    // whose forced-open state also drives the button's own hover treatment
+    // (and temporarily lifts `disabled`, since the empty form here would
+    // otherwise leave it disabled/dim — the Figma frame shows it enabled).
     setup: () => {
-      useDemoStore.getState().set({ open: 'tooltip:submit' })
+      useDemoStore.getState().set({ open: ['tooltip:submit'] })
     },
   },
 
@@ -385,13 +378,12 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:83067',
     png: 'F3_row-hover-upgrade__10489-83067.png',
     route: '/setup',
-    // NOT YET WIRED: DataTable.tsx has no forceHoverRowId prop (handoff
-    // table row 6). 'row:ah' = Albert Heijn, the 'Upgrade' row.
+    // 'row:ah' = Albert Heijn, the 'Upgrade' row.
     setup: () => {
       const w = useWizardStore.getState()
       w.setField('accountNumber', '333333333')
       w.runLookup()
-      useDemoStore.getState().set({ hover: 'row:ah' })
+      useDemoStore.getState().set({ hover: ['row:ah'] })
     },
   },
   {
@@ -400,13 +392,13 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11134:11303',
     png: 'F4_row-hover-none__11134-11303.png',
     route: '/setup',
-    // NOT YET WIRED (same as F3). 'row:acz' = Albert CZ, supportedAction
-    // 'None' — hovers grey with no action button.
+    // 'row:acz' = Albert CZ, supportedAction 'None' — hovers grey with no
+    // action button.
     setup: () => {
       const w = useWizardStore.getState()
       w.setField('accountNumber', '333333333')
       w.runLookup()
-      useDemoStore.getState().set({ hover: 'row:acz' })
+      useDemoStore.getState().set({ hover: ['row:acz'] })
     },
   },
   {
@@ -415,12 +407,12 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11134:11613',
     png: 'F5_row-hover-add-licenses__11134-11613.png',
     route: '/setup',
-    // NOT YET WIRED (same as F3). 'row:ad' = Ahold Delhaize, 'Add Licenses'.
+    // 'row:ad' = Ahold Delhaize, 'Add Licenses'.
     setup: () => {
       const w = useWizardStore.getState()
       w.setField('accountNumber', '333333333')
       w.runLookup()
-      useDemoStore.getState().set({ hover: 'row:ad' })
+      useDemoStore.getState().set({ hover: ['row:ad'] })
     },
   },
   {
@@ -429,13 +421,11 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11134:11999',
     png: 'F6_create-new-dashboard-hover__11134-11999.png',
     route: '/setup',
-    // NOT YET WIRED: Button.tsx has no forceHover prop, and
-    // ExistingDashboardsModal doesn't forward one (handoff table row 7).
     setup: () => {
       const w = useWizardStore.getState()
       w.setField('accountNumber', '333333333')
       w.runLookup()
-      useDemoStore.getState().set({ hover: 'button:createNew' })
+      useDemoStore.getState().set({ hover: ['button:createNew'] })
     },
   },
 
@@ -468,13 +458,12 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:83024',
     png: 'G3_row-hover-upgrade__10489-83024.png',
     route: '/setup',
-    // NOT YET WIRED (same as F3). 'row:ah' = Albert Heijn, the only row in
-    // this result set.
+    // 'row:ah' = Albert Heijn, the only row in this result set.
     setup: () => {
       const w = useWizardStore.getState()
       w.setField('accountNumber', '111111111')
       w.runLookup()
-      useDemoStore.getState().set({ hover: 'row:ah' })
+      useDemoStore.getState().set({ hover: ['row:ah'] })
     },
   },
 

@@ -5,6 +5,11 @@ export interface TooltipProps {
   content: string
   children: ReactNode
   className?: string
+  /**
+   * Forces the tooltip open, additively — real hover/focus keeps working
+   * regardless. Undefined/false forces nothing (today's behaviour).
+   */
+  forceOpen?: boolean
 }
 
 /**
@@ -18,8 +23,9 @@ export interface TooltipProps {
  * close to the icon's left edge and growing rightward — not centered above
  * the trigger — so this opens above-and-right rather than above-and-centered.
  */
-export function Tooltip({ content, children, className }: TooltipProps) {
-  const [open, setOpen] = useState(false)
+export function Tooltip({ content, children, className, forceOpen }: TooltipProps) {
+  const [localOpen, setOpen] = useState(false)
+  const open = localOpen || forceOpen
 
   return (
     <span
