@@ -115,7 +115,7 @@ export function TreeSelect({
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
           className={cn(
-            'flex h-10 w-full items-center justify-between border border-viq-border bg-white px-3 text-left text-sm',
+            'flex h-9 w-full items-center justify-between border border-viq-border bg-white px-3 text-left text-sm',
             'text-viq-text-placeholder hover:border-viq-border-hover',
             open ? 'rounded-t-viq-control border-b-0' : 'rounded-viq-control',
           )}

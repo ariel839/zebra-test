@@ -17,6 +17,7 @@ import { SuccessOverlay } from '@/components/wizard/SuccessOverlay'
 import { WizardShell } from '@/components/wizard/WizardShell'
 import { DASHBOARD_SETTINGS_COPY } from '@/content/dashboardSettings'
 import { useDemoStore, useForcedHover, useForcedOpen } from '@/flow/demoState'
+import { cn } from '@/lib/cn'
 import { COMPANY_NAMES } from '@/mocks/companyNames'
 import { COMPANY_TREE } from '@/mocks/companyTree'
 import { CONTRACT_TYPES } from '@/mocks/contractTypes'
@@ -43,8 +44,8 @@ const AUTO_ADD_CONTRACTS_OPTIONS = [
  * CSS grid so a row can render only one slot (see Automatically Add Contracts
  * = No, B02) without the other slot's space collapsing into the next row.
  */
-function Strip({ children }: { children: ReactNode }) {
-  return <div className="mb-8 flex gap-8">{children}</div>
+function Strip({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('mb-6 flex gap-8', className)}>{children}</div>
 }
 
 function Col({ children }: { children: ReactNode }) {
@@ -178,7 +179,7 @@ export function DashboardSettingsForm() {
                   label={labels.automaticallyAddContracts}
                   tooltip={tooltips.automaticallyAddContracts}
                 />
-                <div className="flex h-10 items-center">
+                <div className="flex h-9 items-center">
                   <RadioGroup
                     name="automaticallyAddContracts"
                     value={form.automaticallyAddContracts}
@@ -223,7 +224,7 @@ export function DashboardSettingsForm() {
             </Col>
           </Strip>
 
-          <Strip>
+          <Strip className="mb-8">
             <Col>
               <InputWithHeader
                 type="email"
@@ -236,7 +237,7 @@ export function DashboardSettingsForm() {
               />
             </Col>
             <Col>
-              <div className="flex h-10 items-end pb-2.5">
+              <div className="mt-[27px] flex">
                 <Checkbox
                   checked={form.signUpForLearningSeries}
                   onChange={(checked) => setField('signUpForLearningSeries', checked)}

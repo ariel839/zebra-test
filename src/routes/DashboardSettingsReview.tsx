@@ -38,7 +38,7 @@ const AUTO_ADD_CONTRACTS_OPTIONS = [
 
 /** Mirrors the two-column field grid used by the initial Dashboard Settings form. */
 function Strip({ children }: { children: ReactNode }) {
-  return <div className="mb-8 flex gap-8">{children}</div>
+  return <div className="mb-6 flex gap-8">{children}</div>
 }
 
 function Col({ children }: { children: ReactNode }) {

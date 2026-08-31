@@ -91,7 +91,7 @@ export function Select({
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
           className={cn(
-            'flex h-10 w-[260px] items-center justify-between border border-viq-border bg-white px-3',
+            'flex h-9 w-[260px] items-center justify-between border border-viq-border bg-white px-3',
             'text-sm hover:border-viq-border-hover',
             open ? 'rounded-t-viq-control border-b-0' : 'rounded-viq-control',
           )}

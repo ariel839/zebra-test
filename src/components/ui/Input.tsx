@@ -29,7 +29,7 @@ export function Input({ className, forceHover, ...rest }: InputProps) {
   return (
     <input
       className={cn(
-        'h-10 w-[260px] rounded-viq-control border border-viq-border bg-white px-3 text-sm',
+        'h-9 w-[260px] rounded-viq-control border border-viq-border bg-white px-3 text-sm',
         'text-viq-text placeholder:text-viq-text-placeholder',
         'hover:border-viq-border-hover',
         forceHover && 'border-viq-border-hover',

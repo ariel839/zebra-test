@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 
 export function WizardTopStrip() {
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between bg-viq-strip-dark px-6">
+    <header className="flex h-[50px] shrink-0 items-center justify-between bg-viq-strip-dark px-6">
       <span className="text-sm font-semibold">
         <span className="text-viq-brand-green">VisibilityIQ Foresight</span>
         <span className="text-white"> Guided Setup</span>

@@ -25,8 +25,8 @@ export function WizardShell({
         <SideNav activeId={activeNavId} />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col">
-            <div className="h-[97px] shrink-0 px-14 pt-8">
-              <h1 className="text-[33px] leading-none font-semibold text-viq-text">{title}</h1>
+            <div className="h-[88px] shrink-0 px-14 pt-8">
+              <h1 className="text-[28px] leading-none font-semibold text-viq-text">{title}</h1>
               {subtitle && <p className="mt-2 text-sm text-viq-text-muted">{subtitle}</p>}
             </div>
             <div className="min-h-0 flex-1 overflow-visible">{children}</div>
