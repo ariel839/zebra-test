@@ -1,75 +1,40 @@
-# React + TypeScript + Vite
+# VisibilityIQ Guided Setup — frontend prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A click-through frontend prototype with no backend. Page refresh resets all state. Design tokens in `src/styles/tokens.css` were sampled from rendered PNG frames because the Figma variables API was unavailable; swapping in real variables later is a one-file change.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev       # Vite dev server at http://localhost:5173
+npm run build     # Production build to dist/
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Demo accounts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+These three account numbers trigger different flows:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `189189189` — No existing dashboards (the happy flow, straight through to Submit)
+- `333333333` — Three existing dashboards (the "Existing Dashboards Detected" modal)
+- `111111111` — One existing OneCare dashboard (the single-result modal)
 
-```
+Enter the number in **Account Number** and click out of the field (lookup fires on blur).
+
+## Routes
+
+- `/` — Overview page
+- `/setup` — Dashboard settings form; add `?mode=review` for review mode
+- `/flow` — Full screen walkthrough (Prev/Next or arrow keys; dropdown for direct access)
+- `/sandbox/tree-select` — Dev-only tree select component sandbox
+
+## Display
+
+The design is fixed at 1920×1080 with a scale-to-fit wrapper. At smaller window sizes, the entire UI scales down uniformly (no responsive breakpoints, no horizontal scroll).
+
+## Documentation
+
+- `wizard-spec-files/WIZARD-SPEC.md` — Spec §1–§9, the complete functional brief
+- `wizard-spec-files/screens/` — PNG renders of all 35 UI frames (31 built, 4 scoped out)
+- `docs/demo-card.md` — Quick reference for demo account numbers and routes
+- `docs/copy-bugs.md` — Typos reproduced from Figma and design questions for the client
+- `docs/figma-capture.md` — Token sampling methodology and per-token sources
