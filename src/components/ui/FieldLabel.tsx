@@ -15,7 +15,7 @@ export interface FieldLabelProps {
 export function FieldLabel({ label, required, tooltip, htmlFor }: FieldLabelProps) {
   return (
     <span className="mb-1.5 flex items-center gap-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-medium text-viq-text">
+      <label htmlFor={htmlFor} className="text-sm font-normal text-viq-text-muted">
         {label}
         {required && <span className="text-viq-danger"> *</span>}
       </label>

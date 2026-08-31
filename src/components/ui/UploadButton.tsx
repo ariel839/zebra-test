@@ -49,7 +49,7 @@ export function UploadButton({ value, onChange, label }: UploadButtonProps) {
         />
         <Button
           variant="outline"
-          leftIcon={<Upload size={16} />}
+          rightIcon={<Upload size={16} />}
           onClick={() => inputRef.current?.click()}
         >
           {label}
@@ -70,7 +70,7 @@ export function UploadButton({ value, onChange, label }: UploadButtonProps) {
       />
       <div
         className={cn(
-          'relative w-22 h-22 rounded-viq-control border border-viq-border overflow-hidden',
+          'relative w-28 h-28 rounded-viq-control border border-viq-border overflow-hidden',
           'transition-all cursor-pointer',
         )}
         onMouseEnter={() => setIsHovered(true)}

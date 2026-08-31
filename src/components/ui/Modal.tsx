@@ -102,13 +102,13 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
           className,
         )}
       >
-        <div className="shrink-0 border-b border-viq-border px-6 py-4">
+        <div className="shrink-0 px-6 py-4">
           <h2 id={titleId} className="text-lg font-semibold text-viq-text">
             {title}
           </h2>
         </div>
         <div className="min-h-0 flex-1 overflow-auto px-6 py-4">{children}</div>
-        {footer && <div className="shrink-0 border-t border-viq-border px-6 py-4">{footer}</div>}
+        {footer && <div className="shrink-0 px-6 py-4">{footer}</div>}
       </div>
     </div>
   )

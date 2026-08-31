@@ -40,7 +40,7 @@ export function RadioGroup<T extends string>({
             checked={value === o.value}
             disabled={disabled}
             onChange={() => onChange(o.value)}
-            className="h-4 w-4 accent-viq-primary disabled:cursor-not-allowed"
+            className="h-4 w-4 accent-viq-text disabled:cursor-not-allowed"
           />
           {o.label}
         </label>
