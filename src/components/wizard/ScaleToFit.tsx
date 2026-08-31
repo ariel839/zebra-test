@@ -41,6 +41,11 @@ export function ScaleToFit({ children }: { children: ReactNode }) {
   return (
     <div ref={hostRef} className="relative h-full w-full overflow-hidden bg-white">
       <div
+        // Marks the transformed canvas as the positioning root for overlays
+        // that must escape a scrolling ancestor's clip without leaving the
+        // canvas — see `Tooltip`, which portals into this element and
+        // positions itself in design px against it.
+        data-canvas-root
         style={{
           position: 'absolute',
           left: 0,

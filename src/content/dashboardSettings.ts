@@ -36,41 +36,37 @@ export const DASHBOARD_SETTINGS_COPY = {
   },
   radio: { yes: 'Yes', no: 'No' },
   /**
-   * One tooltip per field, spec §3 ("Every label carries a 16px info icon →
-   * tooltip"). Only two of these were verified against a Row D frame — the
-   * other five never appear in any exported screenshot in
-   * wizard-spec-files/screens/, so spec §3 says to "reuse the Overview copy
-   * from §Row A, or ask the designer."
+   * Tooltip copy — **only the strings that are legible in a Row D frame**.
    *
-   * This task (Task 6) does NOT import OVERVIEW_COPY — src/content/overview
-   * is owned by Task 4 and does not exist yet at the time this file was
-   * written, and the brief explicitly forbids importing it here. The five
-   * placeholders below are this task's best-effort, transcription-shaped
-   * copy (matching the terse, second-person register of the two verified
-   * strings) and are flagged for Task 4/a later pass to replace with the
-   * real Overview explainer text once that module exists.
+   * Spec §3 says every label carries a 16px info icon whose tooltip explains
+   * the field, and §3 offers two ways to fill the gaps it leaves ("reuse the
+   * Overview copy from §Row A, or ask the designer"). Neither is taken: on
+   * the client's instruction, copy that cannot be read off a frame is not
+   * shipped at all. So the five fields below have no entry here, and their
+   * info icon renders with nothing behind it (`FieldLabel` keeps drawing the
+   * icon, because every B- and D-row frame shows one on every label — it is
+   * the *text* that is unverified, not the icon):
+   *
+   *   Display name · Automatically add contracts · Valid company names ·
+   *   Contract type · User email
+   *
+   * There is also no `submit` entry, and there never should have been: the
+   * frame named `D3_tooltip-submit-hover` shows the **Company name** tooltip
+   * open (the same string as `D2`) next to a Submit button in its hover
+   * state — not a tooltip on Submit. The earlier `submit` string here was
+   * written from the frame's *name*; reading the frame itself disproves it.
+   * `screens.ts`'s D3 entry reproduces what the frame actually shows.
+   *
+   * Both survivors were transcribed from their frame, character by character.
    */
   tooltips: {
-    // Verbatim, spec §3 — verified against D1 (`10489:80202`).
+    // Verbatim, spec §3 — verified against D1 (`10489:80202`), and re-read
+    // off the frame at 3x when the placeholders around it were removed.
     accountNumber:
       "Enter the customer's Siebel account number as it appears on their VIQF contract.",
-    // Verbatim, spec §3 — verified against D2 (`10489:80363`).
+    // Verbatim, spec §3 — verified against D2 (`10489:80363`) and again in
+    // D3, which shows the same tooltip.
     companyName:
       'Select the core identifier for your dashboard; this name cannot be changed once set.',
-    // PLACEHOLDER — not shown in any Row D frame. Derive from OVERVIEW_COPY once Task 4 lands.
-    displayName: 'Choose the name shown for this dashboard throughout the app.',
-    // PLACEHOLDER — not shown in any Row D frame. Derive from OVERVIEW_COPY once Task 4 lands.
-    automaticallyAddContracts:
-      'When enabled, new contracts on this account are added to the dashboard automatically.',
-    // PLACEHOLDER — not shown in any Row D frame. Derive from OVERVIEW_COPY once Task 4 lands.
-    validCompanyNames: 'Select every company name that should be treated as valid for this account.',
-    // PLACEHOLDER — not shown in any Row D frame. Derive from OVERVIEW_COPY once Task 4 lands.
-    contractType: 'Select which contract types this dashboard should track.',
-    // PLACEHOLDER — not shown in any Row D frame. Derive from OVERVIEW_COPY once Task 4 lands.
-    userEmail: 'Enter the email address that should receive dashboard notifications.',
-    // PLACEHOLDER — D3 (`10489:76248`) shows the Submit button in a hover
-    // state with a tooltip open, but the tooltip copy wasn't legible in
-    // that frame's export. Best-effort text pending a designer check.
-    submit: 'Submit your dashboard settings to create this dashboard.',
   },
 } as const

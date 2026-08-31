@@ -16,7 +16,17 @@ export interface FieldLabelProps {
 
 /**
  * Spec §3: required fields carry a red `*` after the label; every label
- * carries a 16px info icon that opens a Tooltip on hover or keyboard focus.
+ * carries a 16px info icon.
+ *
+ * The icon is drawn whether or not there is tooltip copy for the field,
+ * because every B- and D-row frame shows one on every label — `B01` has
+ * seven, one per field. Only two of those tooltips are legible in any frame
+ * (`D1`, `D2`), and unverified copy is not shipped (see
+ * `src/content/dashboardSettings.ts`), so on the other five the icon is
+ * decorative: `aria-hidden` and not focusable, since there is nothing for it
+ * to reveal. Passing `tooltip` is what turns it into a real hover/focus
+ * target. Dropping the icon instead would have been a visible deviation from
+ * the frames.
  */
 export function FieldLabel({
   label,
@@ -31,7 +41,7 @@ export function FieldLabel({
         {label}
         {required && <span className="ml-[3px] text-viq-danger">*</span>}
       </label>
-      {tooltip && (
+      {tooltip ? (
         <Tooltip content={tooltip} forceOpen={forceTooltipOpen}>
           <Info
             size={16}
@@ -40,6 +50,8 @@ export function FieldLabel({
             className="cursor-help text-viq-icon-muted outline-none"
           />
         </Tooltip>
+      ) : (
+        <Info size={16} aria-hidden className="text-viq-icon-muted" />
       )}
     </span>
   )

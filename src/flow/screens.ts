@@ -310,16 +310,20 @@ export const FLOW_SCREENS: FlowScreen[] = [
   },
   {
     id: 'D3',
-    label: 'Tooltip: submit hover',
+    label: 'Tooltip: company name, submit hover',
     node: '10489:76248',
     png: 'D3_tooltip-submit-hover__10489-76248.png',
     route: '/setup',
-    // The Submit button is wrapped in its own Tooltip (DashboardSettingsForm)
-    // whose forced-open state also drives the button's own hover treatment
-    // (and temporarily lifts `disabled`, since the empty form here would
-    // otherwise leave it disabled/dim — the Figma frame shows it enabled).
+    // The frame's name is misleading and this screen used to follow it: it
+    // showed an invented tooltip anchored to Submit. Reading the frame
+    // (cropped and upscaled — the export is 1456px wide, so the tooltip is
+    // illegible at 1:1) shows two things at once and no tooltip on Submit:
+    // the **Company name** tooltip open, carrying the same string as D2, and
+    // the Submit button in its hover state. That is what this reproduces.
     setup: () => {
-      useDemoStore.getState().set({ open: ['tooltip:submit'] })
+      useDemoStore
+        .getState()
+        .set({ open: ['tooltip:companyName'], hover: ['button:submit'] })
     },
   },
 

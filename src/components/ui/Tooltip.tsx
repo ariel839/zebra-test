@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/lib/cn'
 
 export interface TooltipProps {
@@ -12,58 +13,113 @@ export interface TooltipProps {
   forceOpen?: boolean
 }
 
+/** Gap between the trigger and the tooltip box, in design px (was `mb-2`). */
+const GAP = 8
+
 /**
- * Hover-and-focus triggered tooltip, absolutely positioned against a
- * `relative` wrapper — never `position: fixed`. The app renders inside a
- * CSS-`transform` scale-to-fit canvas (see ScaleToFit), so `fixed` would
- * resolve against the wrong box.
+ * Room the box needs above the trigger before opening upward is safe:
+ * ~65px of content (up to 3 lines) plus the gap and a little slack.
+ */
+const NEEDED_CLEARANCE = 90
+
+interface Placement {
+  left: number
+  top: number
+  /**
+   * `translateY(-100%)` for an upward box: a transform resolves against the
+   * element's OWN height, so the box can be lifted clear above `top` without
+   * measuring it — and, unlike anchoring to the canvas's bottom edge, the
+   * result does not depend on the canvas's height. That matters: `ScaleToFit`
+   * renders once at its default 1920x1080 and re-measures on the first
+   * `ResizeObserver` callback, so a canvas-height-relative offset computed by
+   * a tooltip that opens at mount (every forced-open flow screen does) is
+   * stale the moment the real height lands — it drops the box ~100px off.
+   */
+  transform?: string
+}
+
+/**
+ * Hover-and-focus triggered tooltip. Never `position: fixed`: the app
+ * renders inside a CSS-`transform` scale-to-fit canvas (see `ScaleToFit`),
+ * so `fixed` would resolve against the wrong box.
  *
  * Positioning matches Row D (`10489:80202`, `10489:80363`, `10489:76248`):
  * pixel-sampling the three tooltip frames shows the box's left edge landing
- * close to the icon's left edge and growing rightward — not centered above
- * the trigger — so this opens above-and-right rather than above-and-centered.
+ * close to the icon's left edge and growing rightward — not centered — and
+ * sitting **above** the trigger, overlapping whatever is above it.
  *
- * That above-right placement is only safe when there's room above the
- * trigger: the top row of `DashboardSettingsForm`'s fields (Account Number,
- * Company Name — D1/D2) sits close enough to the top of the form's own
- * `overflow-y-auto` scroll container that a tooltip opening upward from
- * there renders partly outside that container and gets silently clipped
- * (reproduces with a real keyboard focus on `/setup`, not just the forced
- * demo state — this was never visually verified before D1/D2 existed to
- * expose it). So this measures, each time the tooltip opens, how much room
- * there actually is between the trigger and the nearest scrolling ancestor's
- * own top edge (not the viewport's — the viewport is usually not what's
- * doing the clipping) and flips to open downward instead when that's not
- * enough, rather than hardcoding a direction that only works for some call
- * sites.
+ * That upward placement is what makes the portal necessary. Positioned as an
+ * ordinary absolute child of the trigger, a box opening upward from the top
+ * field row of `DashboardSettingsForm` renders partly outside that form's own
+ * `overflow-y-auto` scroll container and is silently clipped (reproduces with
+ * a real keyboard focus on `/setup`, not only the forced demo state). An
+ * earlier pass worked around the clip by flipping the box downward whenever
+ * there wasn't room above — which is why D1/D2/D3 rendered with the tooltip
+ * below the icon, covering the field, where every frame shows it above.
+ *
+ * So this portals the box to the canvas root (`[data-canvas-root]`, the
+ * transformed element itself — still inside the canvas, still `absolute`,
+ * so the `fixed` ban is respected) and positions it there in design px.
+ * Nothing between the trigger and the canvas can clip it, so upward
+ * placement holds for every call site, and the frames are reproduced. The
+ * downward flip survives only as the genuine last resort: a trigger with
+ * less than `NEEDED_CLEARANCE` above it inside the canvas itself, where
+ * opening upward would run off the top of the canvas instead.
+ *
+ * Placement is measured when the tooltip opens. It is not tracked while
+ * open, so a scroll underneath an open tooltip would leave the box behind —
+ * in practice the tooltip closes on the mouse or focus leaving the trigger,
+ * and the guided flow never scrolls a forced-open one.
  */
-function nearestScrollAncestorTop(el: HTMLElement): number {
-  let node = el.parentElement
-  while (node) {
-    const style = getComputedStyle(node)
-    if (style.overflowY === 'auto' || style.overflowY === 'scroll' || style.overflowY === 'hidden') {
-      return node.getBoundingClientRect().top
-    }
-    node = node.parentElement
-  }
-  return 0
-}
-
 export function Tooltip({ content, children, className, forceOpen }: TooltipProps) {
   const [localOpen, setOpen] = useState(false)
   const open = localOpen || forceOpen
   const triggerRef = useRef<HTMLSpanElement>(null)
-  const [openUpward, setOpenUpward] = useState(true)
+  const [canvas, setCanvas] = useState<HTMLElement | null>(null)
+  const [placement, setPlacement] = useState<Placement | null>(null)
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) return
-    // ~65px of content (up to 3 lines) plus the 8px gap and a little slack —
-    // enough to decide, not a pixel-exact box measurement.
-    const NEEDED_CLEARANCE = 90
-    const triggerTop = triggerRef.current.getBoundingClientRect().top
-    const ceiling = nearestScrollAncestorTop(triggerRef.current)
-    setOpenUpward(triggerTop - ceiling >= NEEDED_CLEARANCE)
+    const root = triggerRef.current.closest<HTMLElement>('[data-canvas-root]')
+    if (!root) {
+      // No canvas (a component rendered in isolation, e.g. the sandbox
+      // route): fall back to an in-flow absolute box, positioned below so it
+      // can't be clipped by whatever ancestor happens to be scrolling.
+      setCanvas(null)
+      setPlacement(null)
+      return
+    }
+    const canvasRect = root.getBoundingClientRect()
+    const triggerRect = triggerRef.current.getBoundingClientRect()
+    // `offsetWidth` is the canvas's untransformed layout width (the design
+    // width), so this recovers ScaleToFit's scale without importing it.
+    const scale = root.offsetWidth > 0 ? canvasRect.width / root.offsetWidth : 1
+    const left = (triggerRect.left - canvasRect.left) / scale
+    const spaceAbove = (triggerRect.top - canvasRect.top) / scale
+
+    setCanvas(root)
+    setPlacement(
+      spaceAbove >= NEEDED_CLEARANCE
+        ? { left, top: spaceAbove - GAP, transform: 'translateY(-100%)' }
+        : { left, top: (triggerRect.bottom - canvasRect.top) / scale + GAP },
+    )
   }, [open])
+
+  const box = (
+    <span
+      role="tooltip"
+      className={cn(
+        'absolute z-50 w-[220px] rounded-viq-control bg-viq-tooltip-bg px-3 py-2.5',
+        'text-xs leading-relaxed text-viq-tooltip-text shadow-lg',
+        // Fallback placement only — the portalled box positions itself with
+        // the inline style below.
+        !placement && 'top-full left-0 mt-2',
+      )}
+      style={placement ?? undefined}
+    >
+      {content}
+    </span>
+  )
 
   return (
     <span
@@ -75,18 +131,7 @@ export function Tooltip({ content, children, className, forceOpen }: TooltipProp
       onBlur={() => setOpen(false)}
     >
       {children}
-      {open && (
-        <span
-          role="tooltip"
-          className={cn(
-            'absolute left-0 z-50 w-[220px] rounded-viq-control bg-viq-tooltip-bg px-3 py-2.5',
-            'text-xs leading-relaxed text-viq-tooltip-text shadow-lg',
-            openUpward ? 'bottom-full mb-2' : 'top-full mt-2',
-          )}
-        >
-          {content}
-        </span>
-      )}
+      {open && (canvas && placement ? createPortal(box, canvas) : box)}
     </span>
   )
 }

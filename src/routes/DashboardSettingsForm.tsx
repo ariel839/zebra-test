@@ -8,7 +8,6 @@ import { InputWithHeader } from '@/components/ui/InputWithHeader'
 import { MultiSelect } from '@/components/ui/MultiSelect'
 import { RadioGroup } from '@/components/ui/RadioGroup'
 import { Select, type SelectOption } from '@/components/ui/Select'
-import { Tooltip } from '@/components/ui/Tooltip'
 import { TreeSelect } from '@/components/ui/TreeSelect/TreeSelect'
 import { UploadButton } from '@/components/ui/UploadButton'
 import { ExistingDashboardsModal } from '@/components/wizard/ExistingDashboardsModal'
@@ -83,7 +82,9 @@ export function DashboardSettingsForm() {
   const demoFilterQuery = useDemoStore((s) => s.filterQuery)
   const demoFilterDraft = useDemoStore((s) => s.filterDraft)
   const forceChipHover = useForcedHover('chip:ecp')
-  const forceSubmitTooltip = useForcedOpen('tooltip:submit')
+  // D3's frame shows Submit in its hover state (with the Company name
+  // tooltip open beside it) — a hover override, not a tooltip on Submit.
+  const forceSubmitHover = useForcedHover('button:submit')
 
   // Display Name defaults to the chosen Company Name's label, but must never
   // clobber something the user typed. Compare against the LABEL of the
@@ -113,22 +114,19 @@ export function DashboardSettingsForm() {
             >
               {buttons.back}
             </Button>
-            <Tooltip content={tooltips.submit} forceOpen={forceSubmitTooltip}>
-              <Button
-                variant="primary"
-                // Forcing the tooltip open (D3) also shows the button's own
-                // hover treatment, and — since D3's frame renders it fully
-                // enabled against this step's otherwise-empty form — briefly
-                // lifts `disabled` for that forced state only; real
-                // interaction (forceSubmitTooltip always false outside the
-                // flow) still gates entirely on `isValid`.
-                disabled={!isValid && !forceSubmitTooltip}
-                forceHover={forceSubmitTooltip}
-                onClick={submit}
-              >
-                {buttons.submit}
-              </Button>
-            </Tooltip>
+            <Button
+              variant="primary"
+              // D3's frame renders Submit fully enabled and hovered against
+              // this step's otherwise-empty form, so the forced-hover state
+              // also briefly lifts `disabled` — for that forced state only.
+              // Real interaction (forceSubmitHover is always false outside
+              // the flow) still gates entirely on `isValid`.
+              disabled={!isValid && !forceSubmitHover}
+              forceHover={forceSubmitHover}
+              onClick={submit}
+            >
+              {buttons.submit}
+            </Button>
           </>
         }
       >
@@ -167,7 +165,6 @@ export function DashboardSettingsForm() {
               <InputWithHeader
                 label={labels.displayName}
                 required
-                tooltip={tooltips.displayName}
                 placeholder={placeholders.displayName}
                 value={form.displayName}
                 onChange={(e) => setField('displayName', e.target.value)}
@@ -177,7 +174,6 @@ export function DashboardSettingsForm() {
               <div className="mt-[9px] flex flex-col">
                 <FieldLabel
                   label={labels.automaticallyAddContracts}
-                  tooltip={tooltips.automaticallyAddContracts}
                 />
                 <div className="flex h-5 items-center">
                   <RadioGroup
@@ -197,7 +193,6 @@ export function DashboardSettingsForm() {
                 <TreeSelect
                   label={labels.validCompanyNames}
                   required
-                  tooltip={tooltips.validCompanyNames}
                   value={form.validCompanyNames}
                   onChange={(ids) => setField('validCompanyNames', ids)}
                   tree={COMPANY_TREE}
@@ -214,7 +209,6 @@ export function DashboardSettingsForm() {
               <MultiSelect
                 label={labels.contractType}
                 required
-                tooltip={tooltips.contractType}
                 value={form.contractTypes}
                 onChange={(v) => setField('contractTypes', v)}
                 options={CONTRACT_TYPES}
@@ -230,7 +224,6 @@ export function DashboardSettingsForm() {
                 type="email"
                 label={labels.userEmail}
                 required
-                tooltip={tooltips.userEmail}
                 placeholder={placeholders.userEmail}
                 value={form.userEmail}
                 onChange={(e) => setField('userEmail', e.target.value)}
