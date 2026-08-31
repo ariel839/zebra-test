@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { ChipGroup } from '@/components/ui/ChipGroup'
 import { FieldLabel } from '@/components/ui/FieldLabel'
 import { cn } from '@/lib/cn'
 import { rollUpSelection } from './treeSelection'
@@ -27,10 +28,9 @@ export interface TreeSelectProps {
  * checked/indeterminate state from that set, so an inconsistent state can't
  * be represented.
  *
- * Selected values are chips in the final design (Task 10, Figma
- * `10489:78667`). Here they render as plain comma-separated text beneath
- * the trigger — `<ChipGroup>` swaps in later without touching this file's
- * selection logic.
+ * Selected values render as chips beneath the trigger via `<ChipGroup>`,
+ * spec §4 (Figma `10489:78667`) — the trigger itself never reflects the
+ * selection.
  *
  * The trigger's own text is a static call-to-action ("Select all valid
  * names" in the Figma), not a live summary of the selection — the frame
@@ -113,7 +113,9 @@ export function TreeSelect({
         )}
       </div>
       {rollUp.length > 0 && (
-        <p className="mt-1.5 text-sm text-viq-text-muted">{rollUp.join(', ')}</p>
+        <div className="mt-1.5">
+          <ChipGroup labels={rollUp} max={2} />
+        </div>
       )}
     </div>
   )

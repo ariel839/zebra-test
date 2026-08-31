@@ -2,6 +2,7 @@ import { ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { Checkbox } from './Checkbox'
+import { ChipGroup } from './ChipGroup'
 import { FieldLabel } from './FieldLabel'
 
 export interface MultiSelectProps {
@@ -20,8 +21,7 @@ export interface MultiSelectProps {
  * showing its placeholder, and the selected values render as a row beneath
  * it instead. Panel stays open across selections; rows are `Checkbox`.
  *
- * Selected labels currently render as plain comma-separated text below the
- * trigger. Task 10 swaps that row for `<ChipGroup>`.
+ * Selected labels render as chips below the trigger via `<ChipGroup>`.
  */
 export function MultiSelect({
   label,
@@ -108,7 +108,9 @@ export function MultiSelect({
         )}
       </div>
       {value.length > 0 && (
-        <p className="mt-1.5 text-sm text-viq-text">{value.join(', ')}</p>
+        <div className="mt-1.5">
+          <ChipGroup labels={value} max={2} />
+        </div>
       )}
     </div>
   )
