@@ -29,7 +29,7 @@ export function ScaleToFit({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black">
+    <div className="relative h-full w-full overflow-hidden bg-white">
       <div
         style={{
           position: 'absolute',
