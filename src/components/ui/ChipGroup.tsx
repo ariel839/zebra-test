@@ -5,6 +5,8 @@ export interface ChipGroupProps {
   /** Chips shown before collapsing into +N. 2 in the form, 4 in review mode. */
   max?: number
   onRemove?: (label: string) => void
+  /** Forwarded to every chip. The review panel's chips are `'sm'` (R3). */
+  size?: 'xs' | 'sm'
   /** When set, the chip whose label matches gets `forceHover` (additive). */
   forceHoverLabel?: string
 }
@@ -21,7 +23,13 @@ export interface ChipGroupProps {
  * into `Euro Car P…`. At B07's own content the row still fits one line:
  * 91 + 4 + 111 + 4 + 28 = 238px of a 260px column.
  */
-export function ChipGroup({ labels, max = 2, onRemove, forceHoverLabel }: ChipGroupProps) {
+export function ChipGroup({
+  labels,
+  max = 2,
+  onRemove,
+  size,
+  forceHoverLabel,
+}: ChipGroupProps) {
   const shown = labels.slice(0, max)
   const overflow = labels.length - shown.length
   return (
@@ -31,10 +39,11 @@ export function ChipGroup({ labels, max = 2, onRemove, forceHoverLabel }: ChipGr
           key={l}
           label={l}
           onRemove={onRemove && (() => onRemove(l))}
+          size={size}
           forceHover={l === forceHoverLabel}
         />
       ))}
-      {overflow > 0 && <Chip label={`+${overflow}`} hoverable={false} />}
+      {overflow > 0 && <Chip label={`+${overflow}`} hoverable={false} size={size} />}
     </div>
   )
 }

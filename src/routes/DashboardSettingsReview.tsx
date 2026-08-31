@@ -235,12 +235,13 @@ export function DashboardSettingsReview() {
               <ChipGroup
                 labels={selectedLabels(COMPANY_TREE, new Set(form.validCompanyNames))}
                 max={4}
+                size="sm"
               />
             }
           />
           <ReviewRow
             label={rows.contractType}
-            value={<ChipGroup labels={form.contractTypes} />}
+            value={<ChipGroup labels={form.contractTypes} size="sm" />}
           />
           {/* Rendered verbatim — do not normalise casing, the frames only differ by what was typed. */}
           <ReviewRow label={rows.userEmail} value={form.userEmail} />

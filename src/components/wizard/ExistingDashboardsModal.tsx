@@ -97,7 +97,7 @@ export function ExistingDashboardsModal({
         <div className="flex justify-end">
           <Button
             variant="outline"
-            className="w-[180px]"
+            className="min-w-[180px]"
             onClick={onCreateNew}
             forceHover={forceCreateNewHover}
           >

@@ -12,6 +12,14 @@ export interface ChipProps {
   hoverable?: boolean
   className?: string
   /**
+   * `'xs'` (12px) is the form's chip, B07's own measurement. `'sm'` (14px)
+   * is the review panel's — the R3 frame sets `Euro Car Parts Ltd` 82
+   * render px wide against B07's 70 for the same string, a 1.171 ratio
+   * against 14/12's 1.167. Box metrics (`h-5`, 6px padding) are shared;
+   * only the type size differs.
+   */
+  size?: 'xs' | 'sm'
+  /**
    * Forces the hover reveal (× + focus-color border) on, additively — real
    * `hover:`/`group-hover:` keeps working regardless. Undefined/false
    * forces nothing (today's behaviour).
@@ -44,11 +52,19 @@ export interface ChipProps {
  * Nothing here truncates and nothing shrinks: a chip is always exactly as
  * wide as its label. `ChipGroup` wraps the row rather than squeezing it.
  */
-export function Chip({ label, onRemove, hoverable = true, className, forceHover }: ChipProps) {
+export function Chip({
+  label,
+  onRemove,
+  hoverable = true,
+  className,
+  size = 'xs',
+  forceHover,
+}: ChipProps) {
   return (
     <span
       className={cn(
-        'group inline-flex h-5 shrink-0 items-center whitespace-nowrap rounded-viq-control border px-1.5 text-xs leading-none text-viq-text',
+        'group inline-flex h-5 shrink-0 items-center whitespace-nowrap rounded-viq-control border px-1.5 leading-none text-viq-text',
+        size === 'sm' ? 'text-sm' : 'text-xs',
         'border-viq-border',
         hoverable && 'gap-1.5',
         hoverable &&

@@ -226,13 +226,14 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '10489:79003',
     png: 'B08_logo-chip-button-hover__10489-79003.png',
     route: '/setup',
-    // Forces both hover subjects at once — the logo card AND the
-    // 'IOT Mobile Computer' contract-type chip — since `hover` is an array,
-    // not a single key.
+    // B08 *is* B07 with hovers applied — same filled form, including the
+    // company chip row and both contract chips — so it starts from
+    // FILLED_FORM rather than seeding the two hover subjects alone.
+    // Forces both subjects at once — the logo card AND the 'IOT Mobile
+    // Computer' contract-type chip — since `hover` is an array, not a
+    // single key.
     setup: () => {
-      const w = useWizardStore.getState()
-      w.setField('companyLogo', PLACEHOLDER_LOGO)
-      w.setField('contractTypes', ['IOT Mobile Computer'])
+      useWizardStore.setState({ form: FILLED_FORM })
       useDemoStore.getState().set({ hover: ['logo', 'chip:ecp'] })
     },
   },

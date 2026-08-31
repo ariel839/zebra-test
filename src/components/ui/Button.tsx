@@ -31,7 +31,7 @@ export function Button({
     <button
       type="button"
       className={cn(
-        'inline-flex items-center justify-center gap-1.5 rounded-viq-control',
+        'inline-flex items-center justify-center gap-1.5 rounded-viq-control whitespace-nowrap',
         'text-sm font-medium transition-colors',
         size === 'md' && 'px-3 h-10',
         size === 'sm' && 'px-3 h-7',

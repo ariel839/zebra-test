@@ -5,13 +5,14 @@ import type { CompanyNode } from './types'
  * any descendant matches — so ancestors of a match stay visible. Spec §4.
  * An empty query and an empty country list are both no-ops.
  *
- * A node that matches on its own keeps its **whole** subtree, unpruned.
- * Filtering by `United States` matches the `LKQ Corporation` branch but none
- * of its (UK/CZ/…) subsidiaries; pruning them away would leave a dead-end
- * row that shows nothing and — since `collectLeafIds` treats a childless
- * node as a leaf — would put the branch's own id into the leaf-only
- * selection set. Keeping the subtree makes the match expandable and
- * selectable as the group it is.
+ * A branch never survives as a dead end. When it matches on its own but no
+ * descendant does — filtering by `United States` matches `LKQ Corporation`
+ * while every subsidiary under it is UK/CZ/… — it keeps its **whole**
+ * subtree instead of an empty child list. An empty one would render a row
+ * that expands to nothing and, since `collectLeafIds` treats a childless
+ * node as a leaf, would put the branch's own id into the leaf-only selection
+ * set. When descendants do match, only those stay: the visible tree is the
+ * filter's actual result, and checking the branch selects exactly it.
  */
 export function filterTree(
   tree: CompanyNode[],
@@ -27,10 +28,10 @@ export function filterTree(
 
   const prune = (nodes: CompanyNode[]): CompanyNode[] =>
     nodes.flatMap((n): CompanyNode[] => {
-      if (selfMatches(n)) return [n]
       const kids = n.children ? prune(n.children) : []
       if (kids.length > 0) return [{ ...n, children: kids }]
-      return []
+      if (!selfMatches(n)) return []
+      return [n]
     })
 
   return prune(tree)
