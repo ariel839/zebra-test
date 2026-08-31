@@ -24,7 +24,7 @@ export function RadioGroup<T extends string>({
   className,
 }: RadioGroupProps<T>) {
   return (
-    <div className={cn('flex items-center gap-6', className)}>
+    <div className={cn('flex items-center gap-16', className)}>
       {options.map((o) => (
         <label
           key={o.value}

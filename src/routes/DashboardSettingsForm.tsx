@@ -45,7 +45,7 @@ const AUTO_ADD_CONTRACTS_OPTIONS = [
  * = No, B02) without the other slot's space collapsing into the next row.
  */
 function Strip({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mb-6 flex gap-8', className)}>{children}</div>
+  return <div className={cn('mb-[31px] flex gap-8', className)}>{children}</div>
 }
 
 function Col({ children }: { children: ReactNode }) {
@@ -132,7 +132,7 @@ export function DashboardSettingsForm() {
           </>
         }
       >
-        <div className="h-full overflow-y-auto px-14 pt-8 pb-8">
+        <div className="h-full overflow-y-auto px-14 pt-[39px] pb-8">
           <Strip>
             <Col>
               <InputWithHeader
@@ -174,12 +174,12 @@ export function DashboardSettingsForm() {
               />
             </Col>
             <Col>
-              <div className="flex flex-col">
+              <div className="mt-[9px] flex flex-col">
                 <FieldLabel
                   label={labels.automaticallyAddContracts}
                   tooltip={tooltips.automaticallyAddContracts}
                 />
-                <div className="flex h-9 items-center">
+                <div className="flex h-5 items-center">
                   <RadioGroup
                     name="automaticallyAddContracts"
                     value={form.automaticallyAddContracts}
@@ -224,7 +224,7 @@ export function DashboardSettingsForm() {
             </Col>
           </Strip>
 
-          <Strip className="mb-8">
+          <Strip>
             <Col>
               <InputWithHeader
                 type="email"
@@ -237,7 +237,7 @@ export function DashboardSettingsForm() {
               />
             </Col>
             <Col>
-              <div className="mt-[27px] flex">
+              <div className="mt-[22px] flex">
                 <Checkbox
                   checked={form.signUpForLearningSeries}
                   onChange={(checked) => setField('signUpForLearningSeries', checked)}

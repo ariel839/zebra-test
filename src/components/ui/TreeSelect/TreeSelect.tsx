@@ -105,7 +105,7 @@ export function TreeSelect({
   }, [open])
 
   return (
-    <div className={cn('flex w-[242px] flex-col', className)} ref={wrapperRef}>
+    <div className={cn('flex w-[260px] flex-col', className)} ref={wrapperRef}>
       <FieldLabel label={label} required={required} tooltip={tooltip} htmlFor={id} />
       <div className="relative">
         <button

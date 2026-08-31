@@ -26,8 +26,8 @@ export function FieldLabel({
   forceTooltipOpen,
 }: FieldLabelProps) {
   return (
-    <span className="mb-1.5 flex items-center gap-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-normal text-viq-text-muted">
+    <span className="mb-[3px] flex items-center gap-1.5 pl-[7px]">
+      <label htmlFor={htmlFor} className="text-xs font-normal text-viq-text-muted">
         {label}
         {required && <span className="text-viq-danger"> *</span>}
       </label>
