@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/Button'
@@ -87,7 +88,11 @@ export function DashboardSettingsForm() {
         title={DASHBOARD_SETTINGS_COPY.title}
         footer={
           <>
-            <Button variant="outline" onClick={() => navigate('/')}>
+            <Button
+              variant="outline"
+              leftIcon={<ArrowLeft size={16} />}
+              onClick={() => navigate('/')}
+            >
               {buttons.back}
             </Button>
             <Button variant="primary" disabled={!isValid} onClick={submit}>

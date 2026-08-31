@@ -116,6 +116,7 @@ export function ExistingDashboardsModal({
             row.supportedAction === 'None' ? null : (
               <Button
                 variant="outline"
+                size="sm"
                 onClick={(event) => {
                   event.stopPropagation()
                   onAction(row)
