@@ -85,7 +85,11 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
 
   return (
     <div
-      className="absolute inset-0 z-50 bg-viq-scrim"
+      // The frame (F2) shows the whole wizard page BLURRED behind the modal —
+      // strip, sidebar, title, fields and footer are all still legible as smudges.
+      // So this is a translucent wash plus a backdrop blur, NOT an opaque fill:
+      // painting bg-viq-scrim solid hides the page entirely and reads as a grey slab.
+      className="absolute inset-0 z-50 bg-white/60 backdrop-blur-[3px]"
       onMouseDown={onClose}
       data-testid="modal-scrim"
     >
