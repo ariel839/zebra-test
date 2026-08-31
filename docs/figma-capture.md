@@ -50,12 +50,12 @@ and shapes by eye.
 |---|---|---|---|
 | `--color-viq-brand-green` | `#baf75b` | `A1_overview__8474-11927.png` | Wordmark "VisibilityIQ Foresight", peak of an anti-aliased cluster, region (27,18)–(165,35) |
 | `--color-viq-strip-dark` | `#131b05` | `A1_overview__8474-11927.png` | Top strip fill, histogram over (0,0)–(1456,45), 66.5% dominant |
-| `--color-viq-primary` | `#5665a3` | `R3_review-logo-left__10680-16436.png` | "Done" button fill, histogram over (1305,752)–(1345,778), 88.9% dominant |
-| `--color-viq-primary-hover` | `#4c598f` | *derived, not sampled* | See Confidence notes — no distinct hover fill found in B08, D3, or C4 |
+| `--color-viq-primary` | `#6b7ecb` | `B07_filled__10489-78667.png`, `E2_edit__10489-80942.png`, `E3_edit-variant__10489-80741.png` | Submit/Done button fill (rest state), histogram over (1305,752)–(1385,778) — 54.7% / 85.9% / 85.8% dominant respectively. **Corrected** (see Confidence notes): previously `#5665a3`, sampled from R3, which is a hover-state frame. |
+| `--color-viq-primary-hover` | `#5665a3` | `B08_logo-chip-button-hover__10489-79003.png`, `D3_tooltip-submit-hover__10489-76248.png`, `C4_selected-filter-apply__11153-91657.png`, `R3_review-logo-left__10680-16436.png` | Submit/Done/Apply Filters button fill (hover state), histogram over (1305,752)–(1385,778) for B08/D3/R3 — 81.8% / 82.8% / 88.9% dominant — and (1298,332)–(1382,348) for C4 (Apply Filters is positioned differently), 71.2% dominant. **Corrected**: previously `#4c598f`, a derived/darkened guess. |
 | `--color-viq-nav-active` | `#eef1f7` | `A1_overview__8474-11927.png` | "Dashboard Settings" sidebar item fill, histogram over (20,68)–(190,92), 77.1% dominant |
 | `--color-viq-text` | `#131b05` | `B01_default-all-fields-empty__10489-76487.png` | H1 "Dashboard Settings", histogram over (225,70)–(425,100), 580px flat sample |
 | `--color-viq-text-muted` | `#7c7c7d` | `R3_review-logo-left__10680-16436.png` | "Display name" row label, darkest pixel over (460,158)–(720,172) |
-| `--color-viq-text-placeholder` | `#d1d3d7` | `B01_default-all-fields-empty__10489-76487.png` | "Type your account number..." placeholder, darkest pixel over (245,160)–(420,172) |
+| `--color-viq-text-placeholder` | `#a3a9af` | `B01_default-all-fields-empty__10489-76487.png` | "Type your account number..." placeholder, darkest pixel over (245,160)–(420,172), landing at (267,170). **Corrected**: previously `#d1d3d7`, which does not match this method when re-run — see Confidence notes. |
 | `--color-viq-border` | `#d0d8e7` | `B01_default-all-fields-empty__10489-76487.png` | Account Number input box border, row/col scan confirmed exact match, top-left corner |
 | `--color-viq-border-hover` | `#a4a9af` | `B03_field-hover__10489-76991.png` | Same field, hovered — histogram over (220,148)–(430,178), 183px dominant border colour |
 | `--color-viq-border-focus` | `#5665a3` | *derived, not sampled* | See Confidence notes — no distinct blue focus ring found in B04 |
@@ -81,17 +81,60 @@ and shapes by eye.
   (66.5% dominant over the whole top strip; 580px flat sample on the H1 heading) — the design's
   "black" is genuinely a near-black olive-green, not pure `#000`, used consistently for both the
   chrome fill and body text.
-- **`primary-hover` and `border-focus` have no clean source.** Every frame in the set named for a
-  hover or focus state (`B08_logo-chip-button-hover`, `D3_tooltip-submit-hover`,
-  `C4_selected-filter-apply`, `B04_selected-field`) was sampled directly, and in every case the
-  primary button's fill and the focused input's border rendered identically to their non-hover/
-  non-focus counterparts. This was checked three separate times before concluding it's a real
-  property of the rendered frames, not a sampling error — these two states appear not to be
-  visually differentiated in the exported PNGs at all (only a text caret marks B04 as "selected").
-  Both tokens currently hold derived/reused values (a programmatic 12%-darkened primary, and the
-  primary colour reused as a focus ring) marked with `/* not a variable — sampled */`-style
-  comments in `tokens.css`. **These two need the real Figma variables more than anything else in
-  this file** — flagging for follow-up.
+- **CORRECTED — `primary` and `primary-hover` were swapped/wrong, not "no clean source".** The
+  original claim below (kept struck through for history) — that every hover/focus-named frame
+  renders the button identically to non-hover frames, "checked three separate times" — was false.
+  It only ever compared hover frames against *other* hover frames: `R3_review-logo-left` was used
+  as the source for the *default* `--color-viq-primary`, but R3 is itself a hover-state capture
+  (the cursor is visibly on its Done button). So the value that shipped as default (`#5665a3`) was
+  actually the hover colour, and the real default was never sampled at all — it was guessed as a
+  programmatic 12%-darkened primary and shipped as `--color-viq-primary-hover` (`#4c598f`), which
+  doesn't match any rendered frame.
+
+  Re-sampled: three genuinely rest-state frames (`B07_filled`, `E2_edit`, `E3_edit-variant`) all
+  give `#6b7ecb`, now `--color-viq-primary`. Four genuinely hover-state frames (`B08`, `D3`, `C4`,
+  and `R3` itself) all give `#5665a3`, now `--color-viq-primary-hover`. Both are histogram-confirmed
+  at 70-89% dominance — a clean, distinct pair. **Trap for next time: a frame's filename is not
+  proof of its render state.** `R3_review-logo-left` gives no hint from its name that it's a hover
+  capture; only the visible cursor position on the Done button reveals it. Check cursor position,
+  not just filenames, before treating any frame as a default-state source.
+
+  ~~Original (superseded) note: "primary-hover and border-focus have no clean source. Every frame~~
+  ~~in the set named for a hover or focus state (B08, D3, C4, B04) was sampled directly, and in~~
+  ~~every case the primary button's fill and the focused input's border rendered identically to~~
+  ~~their non-hover/non-focus counterparts... these two states appear not to be visually~~
+  ~~differentiated in the exported PNGs at all."~~
+
+  **`border-focus` is unaffected by this task (out of scope, not fixed) but now suspect.** It still
+  holds a *derived* value, hardcoded as `#5665a3` with a comment saying it "reuses
+  `--color-viq-primary`". That comment predates this correction: `--color-viq-primary` is no longer
+  `#5665a3`, so as of this fix `border-focus`'s hardcoded hex silently equals the new
+  `--color-viq-primary-hover` instead of primary, and its comment is stale. This token still needs
+  the real Figma variable more than anything else in the file — flagging for follow-up, not fixed
+  here per the task's scope (only `primary`, `primary-hover`, and `text-placeholder` were in scope).
+- **CORRECTED — `text-placeholder` didn't match its own documented method.** The shipped value
+  (`#d1d3d7`) was captioned as "darkest of AA run over (245,160)-(420,172)" in
+  `B01_default-all-fields-empty`, but re-running that exact scan lands on `#a3a9af` at (267,170) —
+  substantially darker, and confirmed independently with a full min-brightness scan of the region
+  (not just a row scan). Corrected to `#a3a9af`.
+
+- **Other tokens citing R3 or a hover-named frame, checked but not changed (no evidence of error).**
+  Per the same-family risk that caused the primary/primary-hover mixup, every other token citing
+  `R3_review-logo-left` or a frame whose name suggests a hover/selected state was re-checked:
+  - `--color-viq-text-muted` cites R3's "Display name" row label. This label's colour is unrelated
+    to the Done button's hover state (different element entirely), and R3's value (`#7c7c7d`)
+    matches the independently-sampled `--color-viq-tooltip-text` from three separate Row D frames
+    (D1, D2, D3) exactly — strong cross-validation. No evidence of an error; not changed.
+  - `--radius-viq-control` cites R3's Done button corner curve (alongside B01's input box). A
+    button's corner radius is not expected to change between rest and hover states, and the
+    R3-derived measurement agrees with the independent B01 input-box measurement. No evidence of
+    an error; not changed.
+  - `--color-viq-border-hover` (B03, `field-hover`) and `--color-viq-tag-add-licenses` (F6,
+    `create-new-dashboard-hover`) are hover tokens sourced from hover-named frames — that is
+    correct by design, not a mixup.
+  - `--color-viq-border-focus` reuses the old primary hex directly (see the primary/primary-hover
+    note above) — flagged there as now-stale, not fixed here.
+
 - **The three tag-pill colours (`tag-upgrade`, `tag-none`, `tag-add-licenses`) are the least
   certain colour values.** These are 1px strokes on a fully-rounded pill at ~0.758 render scale,
   so almost every pixel is an anti-aliasing blend; only `tag-add-licenses` happened to land on one

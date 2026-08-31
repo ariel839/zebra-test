@@ -12,30 +12,50 @@
   --color-viq-strip-dark:        #131b05;  /* top strip fill, near-black olive-green, A1 */
 
   /* --- Primary action --- */
-  --color-viq-primary:           #5665a3;  /* primary button / focus ring / badge blue — R3 Done button */
-  --color-viq-primary-hover:     #4c598f;  /* not a variable — sampled attempt failed: the Submit/Done/Apply
-                                               Filters button renders identically (#5665a3) in every frame
-                                               named "hover" (B08, D3, C4) — no distinct hover fill exists in
-                                               the rendered set. Programmatically darkened primary by 12% as
-                                               the best-effort value; verify against real Figma variables. */
+  --color-viq-primary:           #6b7ecb;  /* rest-state fill, corrected from a hover-sample mixup (see
+                                               below). Histogram-confirmed in three rest-state frames —
+                                               B07_filled (54.7% dominant), E2_edit (85.9%), E3_edit-variant
+                                               (85.8%) — all landing on the same hex over the Submit/Done
+                                               button region. */
+  --color-viq-primary-hover:     #5665a3;  /* true hover fill, histogram-confirmed across four hover frames:
+                                               B08_logo-chip-button-hover (81.8%), D3_tooltip-submit-hover
+                                               (82.8%), C4_selected-filter-apply (71.2%, Apply Filters button
+                                               at (1298,332)-(1382,348) — a different position than the other
+                                               frames' Submit/Done button), and R3_review-logo-left (88.9%).
+                                               CORRECTION: R3 was previously sampled as the *default* primary
+                                               (#5665a3) and this hex shipped as --color-viq-primary. R3 is
+                                               itself a hover-state screenshot — the cursor sits on its Done
+                                               button — so that was the hover colour mislabeled as default.
+                                               The old comment's claim that "no distinct hover fill exists,
+                                               checked three separate times" was false: it only ever compared
+                                               hover frames against other hover frames. Trap for next time:
+                                               R3's filename gives no hint it's a hover capture — don't treat
+                                               it as a default-state source without checking the cursor. */
   --color-viq-nav-active:        #eef1f7;  /* sidebar active fill "Dashboard Settings", light blue-grey, A1 */
 
   /* --- Text --- */
   --color-viq-text:              #131b05;  /* body and label text — H1 "Dashboard Settings", B01 (matches
                                                strip-dark; this design's "black" is a near-black olive-green) */
   --color-viq-text-muted:        #7c7c7d;  /* review-row labels, secondary copy — R3 "Display name" label */
-  --color-viq-text-placeholder:  #d1d3d7;  /* input placeholder — B01 "Type your account number..." */
+  --color-viq-text-placeholder:  #a3a9af;  /* input placeholder — B01 "Type your account number...",
+                                               darkest-of-AA-run over (245,160)-(420,172), landing at
+                                               (267,170). CORRECTION: the previously shipped #d1d3d7 did not
+                                               match this documented method when re-run — that scan yields
+                                               #a3a9af, substantially darker. #d1d3d7 was likely an average
+                                               or a lighter AA pixel picked up in the same region, not the
+                                               darkest one. */
 
   /* --- Borders --- */
   --color-viq-border:            #d0d8e7;  /* control borders, table rules, card borders — B01 input box */
   --color-viq-border-hover:      #a4a9af;  /* B03 control border on hover */
-  --color-viq-border-focus:      #5665a3;  /* not a variable — sampled attempt failed: B04's "selected"
-                                               Account Number field shows only a plain grey border (#a4a9af,
-                                               identical to border-hover) plus a text caret — no blue focus
-                                               ring is rendered anywhere in the PNG set (checked B04 and the
-                                               B08 "chip-hover" border, both grey). Reusing --color-viq-primary
-                                               as the focus indicator per common convention; escalate to get
-                                               the real value from Figma variables. */
+  --color-viq-border-focus:      var(--color-viq-primary);
+  /* No blue focus ring exists anywhere in the PNG set: B04's "selected" Account Number field
+     renders the same grey as hover (#a4a9af) plus a text caret, confirmed independently twice
+     (Task 2 sampling and Task 6 histogram). So this is a deliberate convention, not a match:
+     the focus indicator tracks the primary action colour. It is a `var()` reference rather than
+     a copied hex on purpose — an earlier revision hardcoded #5665a3 here, which silently became
+     the HOVER colour once primary was corrected. Flagged to the client as an a11y gap in the
+     source design. */
   --color-viq-border-strong:     #868f8a;  /* not a required token — sampled: the "Back" ghost-button stroke,
                                                B01. Distinct from --color-viq-border; kept so components never
                                                hardcode this hex. */
