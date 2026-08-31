@@ -90,34 +90,36 @@ function leavesOfBranch(path: string): string[] {
 }
 
 /**
- * B07 / E2's chip row, verbatim: `Euro Car Parts` · `Euro Car Parts Ltd` · `+3`.
+ * B07 / E2's chip row: two chips plus `+3` at the form's `max={2}`, i.e. five
+ * labels. `selectedLabels` is one-label-per-selected-leaf, so that is five
+ * leaves: the three under `Euro Car Parts` plus the first two `Auto Kelly`
+ * ones, which sort after them and so stay inside the `+3`.
  *
- * `selectedLabels` emits a label for every fully-checked node, so the whole
- * `Euro Car Parts` branch is four labels (the parent plus its three leaves)
- * and one extra leaf makes five — which is exactly the two shown chips plus
- * `+3` at the form's `max={2}`. The extra leaf is `Auto Kelly a.s.`, chosen
- * because it sorts after the Euro Car Parts branch, so the two *visible*
- * chips are the ones the frame draws.
+ * The frame's first chip reads `Euro Car Parts` — a *branch* label, which a
+ * leaf-only chip row cannot emit. The count matches the frame; the two
+ * visible chip labels read `Euro Car Parts Ltd` · `Euro Car Parts Irland`.
  */
 function buildFilledTreeSelection(): string[] {
-  return [...leavesOfBranch('lkq.ecp'), 'lkq.ak.cz']
+  return [...leavesOfBranch('lkq.ecp'), 'lkq.ak.cz', 'lkq.ak.sk']
 }
 
 /**
- * The review frames (R3, E2, E3) draw a fuller selection than B07 does: every
- * second-tier branch contributes, and all but one leaf of each branch other
- * than `Euro Car Parts` is checked, so those branches stay indeterminate and
- * list their leaves individually instead of collapsing to one chip. That is
- * what pushes the label count past the review chip row's `max` and produces
- * its two-digit `+NN`.
+ * The review frames (R3, E2, E3) draw a fuller selection than B07 does: 34 of
+ * the tree's 38 companies, which at the review chip row's `max={4}` is four
+ * chips plus the two-digit `+30` those frames show.
+ *
+ * The four that are left out are the last leaf of each brand's last branch,
+ * so every brand keeps one indeterminate branch — the tree panel behind the
+ * review still shows a mix of checked and partial parents rather than a
+ * uniformly checked one.
  */
 function buildReviewTreeSelection(): string[] {
   const ids: string[] = []
   for (const brand of COMPANY_TREE) {
-    for (const mid of brand.children ?? []) {
+    const mids = brand.children ?? []
+    for (const mid of mids) {
       const leaves = leavesOf(mid)
-      if (mid.id === 'lkq.ecp') ids.push(...leaves)
-      else ids.push(...leaves.slice(0, -1))
+      ids.push(...(mid === mids.at(-1) ? leaves.slice(0, -1) : leaves))
     }
   }
   return ids

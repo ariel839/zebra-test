@@ -37,28 +37,26 @@ export function nodeState(
 }
 
 /**
- * Chip labels, in tree order: **every** node whose whole subtree is selected
- * gets its own label — a fully-checked parent AND each of its descendants.
+ * Chip labels, in tree order: one label per **selected leaf** — an actual
+ * company. Branch nodes never get a chip of their own.
  *
- * This is deliberately NOT a roll-up. Figma B07 (`10489:78667`) shows the
- * chips `Euro Car Parts` · `Euro Car Parts Ltd` · `+3`, and `Euro Car Parts
- * Ltd` is a *child* of `Euro Car Parts` — a pair a "highest fully-selected
- * node only" rule can never produce (a checked parent would swallow it, an
- * indeterminate parent would emit no chip of its own). Selecting the whole
- * `Euro Car Parts` branch plus one more leaf yields exactly the five labels
- * that frame's `+3` implies.
+ * A branch label would double-count: checking `Rhiag Group` (10 companies)
+ * used to emit 14 labels — the group, its three regions, and all ten
+ * companies — so the form's overflow chip read `+12` for a selection the
+ * user counts as 10. The `+N` now counts companies, which is also what spec
+ * §4's own sizing note assumes ("~40 leaves … deep enough that `+30` is
+ * reachable").
  *
- * An unchecked subtree is skipped whole; an indeterminate one emits no label
- * for itself but is still descended into.
+ * An unchecked subtree is skipped whole; an indeterminate one is descended
+ * into and contributes only its checked leaves.
  */
 export function selectedLabels(tree: CompanyNode[], selected: Set<string>): string[] {
   const out: string[] = []
   const walk = (nodes: CompanyNode[]) => {
     for (const n of nodes) {
-      const state = nodeState(n, selected)
-      if (state === 'unchecked') continue
-      if (state === 'checked') out.push(n.label)
-      if (n.children) walk(n.children)
+      if (nodeState(n, selected) === 'unchecked') continue
+      if (n.children?.length) walk(n.children)
+      else out.push(n.label)
     }
   }
   walk(tree)

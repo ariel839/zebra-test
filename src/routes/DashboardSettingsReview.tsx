@@ -84,6 +84,19 @@ export function DashboardSettingsReview() {
   const enterEdit = useWizardStore((s) => s.enterEdit)
   const cancelEdit = useWizardStore((s) => s.cancelEdit)
   const saveEdit = useWizardStore((s) => s.saveEdit)
+  const reset = useWizardStore((s) => s.reset)
+
+  /**
+   * Done ends the round, so it has to clear the wizard — not just navigate.
+   * The store (and its `sessionStorage` mirror) outlives this route, so
+   * leaving it filled meant walking back in through Overview -> Next redrew
+   * the form with the dashboard that was just created still in every field,
+   * logo included, instead of a blank one for the next dashboard.
+   */
+  const finishAndExit = () => {
+    reset()
+    navigate('/')
+  }
   // Null everywhere outside the guided flow, which is what makes 'dividers'
   // the app's review screen. Read unconditionally — the edit-mode early
   // return below must not change the hook order.
@@ -273,7 +286,7 @@ export function DashboardSettingsReview() {
       <Button variant="outline" rightIcon={<Pencil size={16} />} onClick={enterEdit}>
         {buttons.enterEdit}
       </Button>
-      <Button variant="primary" onClick={() => navigate('/')}>
+      <Button variant="primary" onClick={finishAndExit}>
         {buttons.done}
       </Button>
     </>
@@ -335,7 +348,7 @@ export function DashboardSettingsReview() {
           <Button variant="outline" onClick={enterEdit}>
             {buttons.enterEdit}
           </Button>
-          <Button variant="primary" onClick={() => navigate('/')}>
+          <Button variant="primary" onClick={finishAndExit}>
             {buttons.done}
           </Button>
         </>

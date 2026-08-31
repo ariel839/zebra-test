@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/Button'
 import { WizardShell } from '@/components/wizard/WizardShell'
 import { OVERVIEW_COPY } from '@/content/overview'
+import { useWizardStore } from '@/store/wizard'
 
 export function Overview() {
   const navigate = useNavigate()
@@ -15,10 +16,21 @@ export function Overview() {
           <Button variant="ghost" disabled leftIcon={<ArrowLeft size={16} />}>
             Back
           </Button>
+          {/* Next starts a round, so it clears the wizard first. The store is
+              mirrored into `sessionStorage` (see `wizard.ts`) and only `Done`
+              on review and the `/flow` loader ever reset it, so walking back
+              in here after leaving a round any other way — a refresh, Back,
+              or re-entering `/setup` — redrew the form with the previous
+              dashboard still in every field, logo included. `getState()`
+              rather than a selector: this is an event handler, not a render
+              read, so there is nothing to subscribe to. */}
           <Button
             variant="primary"
             rightIcon={<ArrowRight size={16} />}
-            onClick={() => navigate('/setup')}
+            onClick={() => {
+              useWizardStore.getState().reset()
+              navigate('/setup')
+            }}
           >
             Next
           </Button>
