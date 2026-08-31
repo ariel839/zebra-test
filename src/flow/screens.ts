@@ -6,7 +6,7 @@ import { useWizardStore, type WizardForm } from '@/store/wizard'
 /**
  * The guided-flow screen registry — Task 17b.
  *
- * One entry per built screen (31 of the 35 UI frames in spec §9 — see the
+ * One entry per built screen (32 of the 35 UI frames in spec §9 — see the
  * bottom of this file for exactly what's excluded and why). `route` names
  * which page `src/routes/Flow.tsx` mounts for this screen; `setup()` drives
  * the app into that screen's exact state and runs AFTER the flow route has
@@ -41,19 +41,32 @@ export interface FlowScreen {
  * without a real file upload (no backend, no fetch — a data URI is neither).
  */
 const PLACEHOLDER_LOGO_SVG =
-  // Traced off B07's 120x120 logo card (x288..408, y554..674): the frame uses
-  // the "logoipsum" placeholder mark — a dark-green square (#113322) and two
-  // circles (#4a4582, #8e3f5a) on a 20px row at card-relative y36, with the
-  // wordmark under it at y62..80. Reproduced here so the demo screens show the
-  // same artwork the frames do instead of a flat blue swatch.
+  // Traced off B07's 120x120 logo card (x288..408, y554..674) and re-measured
+  // against R1's 240x240 one, which draws the same artwork at exactly twice
+  // the size: the frames use the "logoipsum" placeholder mark — a dark-green
+  // square (#113322) and two circles (#4a4582, #8e3f5a) on a 20px row at
+  // card-relative y36, with the wordmark under it. Reproduced here so the
+  // demo screens show the same artwork the frames do instead of a flat blue
+  // swatch. Target artwork extent, in this viewBox's units: x14..107,
+  // y36..80 (both frames agree once R1's is halved).
+  //
+  // `textLength` is load-bearing, not decoration. This SVG is consumed as a
+  // data URI in an `<img>`, and an SVG rendered that way gets no access to
+  // the page's webfonts — `font-family="Roboto"` silently falls back to the
+  // system sans, whose metrics are wider and taller. Left free, the wordmark
+  // overran the viewBox and drove the trailing degree mark into the final
+  // `m`; that was invisible on B07's 120px card and obvious on the 240px one
+  // the boxed review screen draws. Pinning the advance width (and letting
+  // `spacingAndGlyphs` squeeze the glyphs to fit) makes the mark render the
+  // same size whichever font actually resolves.
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
   '<rect width="120" height="120" fill="#ffffff"/>' +
   '<rect x="14" y="36" width="20" height="20" fill="#113322"/>' +
   '<circle cx="46" cy="46" r="10" fill="#4a4582"/>' +
-  '<circle cx="68" cy="46" r="11" fill="#8e3f5a"/>' +
-  '<text x="14" y="79" font-family="Roboto, sans-serif" font-size="20" font-weight="700"' +
-  ' fill="#111111">logoipsum</text>' +
-  '<circle cx="103" cy="64" r="2.5" fill="#111111"/>' +
+  '<circle cx="68" cy="46" r="10" fill="#8e3f5a"/>' +
+  '<text x="14" y="77" font-family="Roboto, sans-serif" font-size="18" font-weight="700"' +
+  ' textLength="85" lengthAdjust="spacingAndGlyphs" fill="#111111">logoipsum</text>' +
+  '<circle cx="103" cy="66" r="2.5" fill="#111111"/>' +
   '</svg>'
 const PLACEHOLDER_LOGO = `data:image/svg+xml;utf8,${encodeURIComponent(PLACEHOLDER_LOGO_SVG)}`
 
@@ -365,7 +378,20 @@ export const FLOW_SCREENS: FlowScreen[] = [
     },
   },
 
-  // --- Row E — edit mode (reached from review) ------------------------------
+  // --- Row E — review + edit mode (the "sub." canvas section) ---------------
+  {
+    id: 'E1',
+    label: 'Review',
+    node: '8901:9551',
+    png: 'E1_review__8901-9551.png',
+    route: '/review',
+    // The app itself renders R2's dividers layout for review, so E1's boxed
+    // arrangement is only reachable by asking for it here.
+    setup: () => {
+      useWizardStore.setState({ form: REVIEW_FILLED_FORM, mode: 'review' })
+      useDemoStore.getState().set({ reviewLayout: 'boxed' })
+    },
+  },
   {
     id: 'E2',
     label: 'Edit',
@@ -511,21 +537,37 @@ export const FLOW_SCREENS: FlowScreen[] = [
 
   // --- Review ----------------------------------------------------------------
   {
+    id: 'R2',
+    label: 'Review (divider lines)',
+    node: '10680:15949',
+    png: 'R2_review-divider-lines__10680-15949.png',
+    route: '/review',
+    // The app's own review screen — the dividers layout is the default when
+    // no `reviewLayout` override is set — so this needs no layout seed, only
+    // the fuller selection the review frames draw.
+    setup: () => {
+      useWizardStore.setState({ form: REVIEW_FILLED_FORM, mode: 'review' })
+    },
+  },
+  {
     id: 'R3',
     label: 'Review (logo left)',
     node: '10680:16436',
     png: 'R3_review-logo-left__10680-16436.png',
     route: '/review',
+    // R2's dividers arrangement is what the app itself renders for review,
+    // so R3's alternate layout is only reachable by asking for it here.
     setup: () => {
       useWizardStore.setState({ form: REVIEW_FILLED_FORM, mode: 'review' })
+      useDemoStore.getState().set({ reviewLayout: 'logoLeft' })
     },
   },
 ]
 
 /**
- * Not built, per the explicit scope decision recorded in Task 16/18: `E1`
- * (a boxed-card review arrangement, same as `R1`), `R1`, `R2` and `R4` are
- * three other review-screen layouts the client didn't pick — only `R3`
- * shipped. `E4` is a Figma dev-notes sticky note, not a UI screen. That is
- * 35 - 4 = 31, matching this registry's length.
+ * Not built: `R1` and `R4` are further review-screen layouts. `R1` is E1's
+ * boxed arrangement under a "Done" footer instead of "Edit", which the `E1`
+ * entry already covers bar that one button; `R4` (logo on top) is its own
+ * layout. `E4` is a Figma dev-notes sticky note, not a UI screen. That is
+ * 35 - 3 = 33, matching this registry's length.
  */

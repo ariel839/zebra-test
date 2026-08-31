@@ -15,7 +15,6 @@ import { useWizardStore } from '@/store/wizard'
 export function DashboardSettings() {
   const [params] = useSearchParams()
   const wantsReview = params.get('mode') === 'review'
-  const mode = useWizardStore((s) => s.mode)
 
   useEffect(() => {
     if (wantsReview && useWizardStore.getState().mode !== 'review') {
@@ -23,6 +22,11 @@ export function DashboardSettings() {
     }
   }, [wantsReview])
 
-  if (wantsReview && mode === 'review') return <DashboardSettingsReview />
+  // `DashboardSettingsReview` owns BOTH review arrangements and the editable
+  // one (E2/E3), switching on `mode` itself. Gating this branch on
+  // `mode === 'review'` too meant Edit — which sets `mode: 'edit'` — fell
+  // through to the plain submit form, so E2/E3 and the Cancel/Save pair were
+  // unreachable and Edit looked like it had thrown the user back a step.
+  if (wantsReview) return <DashboardSettingsReview />
   return <DashboardSettingsForm />
 }

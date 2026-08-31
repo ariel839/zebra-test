@@ -17,7 +17,7 @@ export interface SuccessOverlayProps {
 export function SuccessOverlay({ progress }: SuccessOverlayProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <div className="absolute inset-x-0 top-[50px] bottom-0 bg-black/10" />
+      <div className="absolute inset-x-0 top-[50px] bottom-0 bg-black/10 backdrop-blur-[3px]" />
       <div className="relative flex w-[630px] flex-col items-center rounded-viq-modal bg-white pt-[79px] pb-[71px] shadow-lg">
         <FileCheck2 className="h-[100px] w-[100px] text-viq-border" strokeWidth={0.5} />
 

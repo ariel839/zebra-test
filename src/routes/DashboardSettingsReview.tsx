@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { X } from 'lucide-react'
+import { Pencil, X } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/Button'
 import { ChipGroup } from '@/components/ui/ChipGroup'
@@ -12,10 +12,13 @@ import { Select, type SelectOption } from '@/components/ui/Select'
 import { TreeSelect } from '@/components/ui/TreeSelect/TreeSelect'
 import { selectedLabels } from '@/components/ui/TreeSelect/treeSelection'
 import { UploadButton } from '@/components/ui/UploadButton'
+import { ReviewFieldBox } from '@/components/wizard/ReviewFieldBox'
+import { ReviewLogoCard } from '@/components/wizard/ReviewLogoCard'
 import { ReviewLogoPanel } from '@/components/wizard/ReviewLogoPanel'
 import { ReviewRow } from '@/components/wizard/ReviewRow'
 import { WizardShell } from '@/components/wizard/WizardShell'
 import { REVIEW_COPY } from '@/content/review'
+import { useDemoStore } from '@/flow/demoState'
 import { COMPANY_NAMES, COMPANY_NAME_BADGE_TONES } from '@/mocks/companyNames'
 import { COMPANY_TREE } from '@/mocks/companyTree'
 import { CONTRACT_TYPES } from '@/mocks/contractTypes'
@@ -46,17 +49,32 @@ function Col({ children }: { children: ReactNode }) {
 }
 
 /**
- * Review mode (R3) and edit-from-review mode (E2/E3) — Task 16.
+ * Review mode (E1, R3) and edit-from-review mode (E2/E3) — Task 16.
  *
  * Self-contained: reads/writes `useWizardStore` directly and switches its
  * own body + footer on `mode`. Nothing outside this file needs to know
- * which of R3/E2/E3 is showing; the caller only needs to mount
+ * which of E1/R3/E2/E3 is showing; the caller only needs to mount
  * `<DashboardSettingsReview />` when review mode is active.
  *
- * R3 ships with only a "Done" footer button in the Figma frame, but E2/E3
- * (edit mode) are otherwise unreachable, so an "Edit" control is added to
- * the left of "Done" — a deliberate, approved addition, not an oversight
- * (see docs/figma-capture.md and the task 16 report).
+ * **Three review arrangements ship, of the same seven fields.**
+ * `'dividers'` (R2, `10680:15949`) is the app's own review screen — the one
+ * Submit lands on and the one the Figma dev note `9082:6667` describes for
+ * re-entry into the self-onboarding area: no stepper, each field a
+ * hairline-ruled read-only row with the logo card to its right, editing
+ * reached through the Edit button. `'boxed'` (E1/R1, `8901:9551`) draws the
+ * same seven fields as bordered cards, and `'logoLeft'` (R3, `10680:16436`)
+ * moves the logo to a left panel beside a shorter set of rows. Both
+ * alternates stay reachable through the flow's own `E1` and `R3` entries via
+ * `useDemoStore().reviewLayout`, so their frames can still be compared
+ * side-by-side. Outside the flow that override is null and the app gets the
+ * dividers layout.
+ *
+ * **Footer deviates from every frame, deliberately.** R2 and R3 each draw a
+ * single "Done" button and E1 a single "Edit"; every layout here carries
+ * both, because a click-through demo needs an exit from review *and* a way
+ * into edit mode (E2/E3), which is otherwise unreachable. This is the same
+ * approved addition already recorded for R3 — see docs/figma-capture.md and
+ * the task 16 report.
  */
 export function DashboardSettingsReview() {
   const navigate = useNavigate()
@@ -66,8 +84,53 @@ export function DashboardSettingsReview() {
   const enterEdit = useWizardStore((s) => s.enterEdit)
   const cancelEdit = useWizardStore((s) => s.cancelEdit)
   const saveEdit = useWizardStore((s) => s.saveEdit)
+  // Null everywhere outside the guided flow, which is what makes 'dividers'
+  // the app's review screen. Read unconditionally — the edit-mode early
+  // return below must not change the hook order.
+  const layout = useDemoStore((s) => s.reviewLayout) ?? 'dividers'
 
   const companyLabel = COMPANY_NAMES.find((c) => c.id === form.companyName)?.label ?? ''
+
+  /**
+   * The seven read-only fields, shared by the `'dividers'` and `'boxed'`
+   * arrangements — they show the same data in the same order and differ only
+   * in how one field is drawn, so the list lives here rather than being
+   * written out twice and drifting.
+   */
+  const reviewFields: { key: string; label: string; value: ReactNode }[] = [
+    { key: 'accountNumber', label: fields.labels.accountNumber, value: form.accountNumber },
+    { key: 'companyName', label: fields.labels.companyName, value: companyLabel },
+    { key: 'displayName', label: fields.labels.displayName, value: form.displayName },
+    {
+      key: 'automaticallyAddContracts',
+      label: fields.labels.automaticallyAddContracts,
+      value: form.automaticallyAddContracts === 'yes' ? fields.radio.yes : fields.radio.no,
+    },
+    // Dropped when contracts are not auto-added, matching the form: there is
+    // no valid-names selection to review in that case.
+    ...(form.automaticallyAddContracts === 'yes'
+      ? [
+          {
+            key: 'validCompanyNames',
+            label: fields.labels.validCompanyNames,
+            value: (
+              <ChipGroup
+                labels={selectedLabels(COMPANY_TREE, new Set(form.validCompanyNames))}
+                max={4}
+                size="sm"
+              />
+            ),
+          },
+        ]
+      : []),
+    {
+      key: 'contractType',
+      label: fields.labels.contractType,
+      value: <ChipGroup labels={form.contractTypes} size="sm" />,
+    },
+    // Rendered verbatim — do not normalise casing, the frames only differ by what was typed.
+    { key: 'userEmail', label: fields.labels.userEmail, value: form.userEmail },
+  ]
 
   if (mode === 'edit') {
     return (
@@ -203,6 +266,67 @@ export function DashboardSettingsReview() {
     )
   }
 
+  /* Both right-logo arrangements carry the same footer: E1's "Edit ✎"
+     control beside the Done that leaves review. */
+  const rightLogoFooter = (
+    <>
+      <Button variant="outline" rightIcon={<Pencil size={16} />} onClick={enterEdit}>
+        {buttons.enterEdit}
+      </Button>
+      <Button variant="primary" onClick={() => navigate('/')}>
+        {buttons.done}
+      </Button>
+    </>
+  )
+
+  if (layout === 'dividers') {
+    return (
+      <WizardShell title={REVIEW_COPY.title} footer={rightLogoFooter}>
+        {/*
+          R2 geometry, measured off the frame (`tools/fidelity`, design px):
+          px-14 puts the 684px row column at x288, its rules running to x971
+          and no further, and the logo card 176px right of that at x1147.
+          pt-7 lands the first rule at y268 against the frame's y267, with the
+          rows' own ~103px pitch carrying the rest (y371/475/579/682/785/889).
+          The card sits 9px lower than the rows start — hence mt-[9px], not a
+          shared container offset.
+        */}
+        <div className="flex h-full gap-[176px] overflow-y-auto px-14 pt-7 pb-8">
+          <div className="w-[684px] shrink-0">
+            {reviewFields.map((f) => (
+              <ReviewRow key={f.key} label={f.label} value={f.value} />
+            ))}
+          </div>
+          <div className="mt-[9px] shrink-0">
+            <ReviewLogoCard logo={form.companyLogo} companyName={companyLabel} />
+          </div>
+        </div>
+      </WizardShell>
+    )
+  }
+
+  if (layout === 'boxed') {
+    return (
+      <WizardShell title={REVIEW_COPY.title} footer={rightLogoFooter}>
+        {/*
+          E1 geometry, measured off the E1/R1 frames (`tools/fidelity`, design
+          px): px-14 puts the box column at x288 and pt-10 its first box at
+          y178, level with the logo card; the column is a fixed 684px wide and
+          the card sits 176px right of it. Box pitch is 100.67 (76 tall + a
+          24.5px gap splits the difference to under 2px across all seven).
+        */}
+        <div className="flex h-full gap-[176px] overflow-y-auto px-14 pt-10 pb-8">
+          <div className="flex w-[684px] shrink-0 flex-col gap-[24.5px]">
+            {reviewFields.map((f) => (
+              <ReviewFieldBox key={f.key} label={f.label} value={f.value} />
+            ))}
+          </div>
+          <ReviewLogoCard logo={form.companyLogo} companyName={companyLabel} />
+        </div>
+      </WizardShell>
+    )
+  }
+
   return (
     <WizardShell
       title={REVIEW_COPY.title}
@@ -217,13 +341,19 @@ export function DashboardSettingsReview() {
         </>
       }
     >
-      <div className="flex h-full gap-10 overflow-y-auto px-14 pt-8 pb-8">
+      {/*
+        R3 geometry, measured off the frame (`tools/fidelity`): px-14 puts the
+        logo card at x288, the 89px gutter puts the review column at x577, and
+        the column is a fixed 684px — the rules stop there, they do not run to
+        the edge of the window.
+      */}
+      <div className="flex h-full gap-[89px] overflow-y-auto px-14 pt-8 pb-8">
         <ReviewLogoPanel
           logo={form.companyLogo}
           companyName={companyLabel}
           accountNumber={form.accountNumber}
         />
-        <div className="min-w-0 flex-1">
+        <div className="w-[684px] shrink-0">
           <ReviewRow
             label={rows.displayName}
             value={form.displayName}

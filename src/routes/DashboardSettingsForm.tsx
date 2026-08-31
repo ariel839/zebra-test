@@ -59,6 +59,7 @@ export function DashboardSettingsForm() {
   const setField = useWizardStore((s) => s.setField)
   const runLookup = useWizardStore((s) => s.runLookup)
   const submit = useWizardStore((s) => s.submit)
+  const finishSubmit = useWizardStore((s) => s.finishSubmit)
   const isValid = useWizardStore(selectIsFormValid)
 
   const status = useWizardStore((s) => s.status)
@@ -72,9 +73,12 @@ export function DashboardSettingsForm() {
   const inFlow = pathname.startsWith('/flow')
   useEffect(() => {
     if (status !== 'done' || inFlow) return
-    const t = window.setTimeout(() => navigate('/setup?mode=review'), SUCCESS_HOLD)
+    const t = window.setTimeout(() => {
+      finishSubmit()
+      navigate('/setup?mode=review')
+    }, SUCCESS_HOLD)
     return () => window.clearTimeout(t)
-  }, [status, inFlow, navigate])
+  }, [status, inFlow, navigate, finishSubmit])
 
   const lookup = useWizardStore((s) => s.lookup)
   const isModalOpen = useWizardStore((s) => s.isModalOpen)

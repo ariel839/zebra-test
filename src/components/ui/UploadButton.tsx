@@ -12,7 +12,6 @@ export interface UploadButtonProps {
 
 export function UploadButton({ value, onChange, label }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const previousUrlRef = useRef<string | null>(null)
   const [localHovered, setIsHovered] = useState(false)
   const forced = useForcedHover('logo')
   const isHovered = localHovered || forced
@@ -20,15 +19,19 @@ export function UploadButton({ value, onChange, label }: UploadButtonProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.[0]
     if (file) {
-      // Revoke previous object URL to avoid memory leak
-      if (previousUrlRef.current) {
-        URL.revokeObjectURL(previousUrlRef.current)
+      // Read as a data URL, NOT `URL.createObjectURL`. An object URL is only
+      // valid for the life of the document that created it, so the moment
+      // the page reloaded — a refresh on `/setup?mode=review`, that URL
+      // opened in a fresh tab, a Vite HMR full reload mid-demo — the review
+      // screen's <img> pointed at a dead handle and fell back to its
+      // placeholder mark. A data URL is self-contained, so it survives the
+      // trip through the wizard store's sessionStorage the same way every
+      // other field does.
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') onChange(reader.result)
       }
-
-      // Create new object URL
-      const newUrl = URL.createObjectURL(file)
-      previousUrlRef.current = newUrl
-      onChange(newUrl)
+      reader.readAsDataURL(file)
     }
 
     // Reset input so the same file can be selected again

@@ -1,11 +1,17 @@
 /**
- * Copy for review mode and edit-from-review mode (R3, E2, E3).
- * All user-facing strings for these three screens live here — nothing inline
- * in JSX — kept independent from src/content/dashboardSettings.ts (owned by
- * a different task in this parallel build) even though several field labels
+ * Copy for review mode and edit-from-review mode (E1, R3, E2, E3).
+ * All user-facing strings for these screens live here — nothing inline in
+ * JSX — kept independent from src/content/dashboardSettings.ts (owned by a
+ * different task in this parallel build) even though several field labels
  * are the same underlying copy.
  *
- * Spec: wizard-spec-files/screens/R3_review-logo-left__10680-16436.png,
+ * The boxed review layout (E1) labels its seven read-only cards from
+ * `fields.labels`, the same strings edit mode uses, because it shows the
+ * same seven fields. `rows` is R3's own shorter set — that layout drops
+ * Account number and Company name into its logo panel instead.
+ *
+ * Spec: wizard-spec-files/screens/E1_review__8901-9551.png,
+ *       wizard-spec-files/screens/R3_review-logo-left__10680-16436.png,
  *       wizard-spec-files/screens/E2_edit__10489-80942.png,
  *       wizard-spec-files/screens/E3_edit-variant__10489-80741.png
  */
@@ -30,6 +36,16 @@ export const REVIEW_COPY = {
   /** Placeholder shown in the logo card when no file has been uploaded. */
   logoPlaceholder: {
     brand: 'logoipsum',
+  },
+
+  /**
+   * E1's caption beside the logo card. `fileName` is the frame's literal
+   * copy: an uploaded logo is held as an object URL with no filename
+   * attached, so there is no real name to substitute here.
+   */
+  logoCard: {
+    label: 'Account Logo',
+    fileName: 'File Name',
   },
 
   buttons: {

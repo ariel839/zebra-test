@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { accountLookup } from '@/mocks/accountLookup'
 import type { LookupResult } from '@/types/dashboard'
 
@@ -21,7 +22,16 @@ export interface WizardForm {
   contractTypes: string[]
   userEmail: string
   signUpForLearningSeries: boolean
-  /** Object URL of the uploaded file, or null. Never persisted. */
+  /**
+   * The uploaded logo as a `data:` URL, or null.
+   *
+   * A `blob:` object URL would be smaller, but it dies with the document:
+   * after a reload (a browser refresh, a new tab on `?mode=review`, or a
+   * Vite HMR full reload mid-demo) the handle no longer resolves and the
+   * review screen falls back to its `logoipsum` placeholder. A data URL is
+   * self-contained, so it survives the same `sessionStorage` round-trip as
+   * the rest of the form. See `UploadButton`.
+   */
   companyLogo: string | null
 }
 
@@ -56,13 +66,31 @@ export interface WizardState {
   selectExistingDashboard: (id: string) => void
   createNewDashboard: () => void
   submit: () => void
+  /** Ends the success beat once review has taken over. */
+  finishSubmit: () => void
   enterEdit: () => void
   cancelEdit: () => void
   saveEdit: () => void
   reset: () => void
 }
 
-export const useWizardStore = create<WizardState>((set, get) => ({
+/**
+ * `sessionStorage`, not `localStorage`, and only `form`.
+ *
+ * The wizard used to live entirely in memory, so ANY full page load threw
+ * the whole form away: submitting, landing on `/setup?mode=review`, then
+ * refreshing (or opening that URL in a second tab) redrew review with every
+ * field blank and the placeholder logo, as if nothing had been filled in.
+ * Persisting `form` makes review survive a reload.
+ *
+ * Scoped to the tab (`sessionStorage`) so a genuinely new browser session
+ * still starts on a clean form, and limited to `form` so the transient
+ * slices — `status`/`progress` (the submit beat), `isModalOpen`, `lookup`,
+ * `editSnapshot` — can never be restored mid-animation or mid-modal.
+ * `reset()` writes `EMPTY_FORM` through the same middleware, so the `/flow`
+ * loader still clears what was stored.
+ */
+export const useWizardStore = create<WizardState>()(persist((set, get) => ({
   form: EMPTY_FORM,
   mode: 'edit',
   status: 'idle',
@@ -111,6 +139,12 @@ export const useWizardStore = create<WizardState>((set, get) => ({
     }, 50)
   },
 
+  // The loading/success cards are a one-shot beat, not a state the wizard
+  // lives in. Review calls this as it takes over; leaving `status` on 'done'
+  // meant pressing Edit re-mounted the success card over the form and
+  // re-armed the timer that bounces back to review.
+  finishSubmit: () => set({ status: 'idle', progress: 0 }),
+
   enterEdit: () => set((s) => ({ mode: 'edit', editSnapshot: s.form })),
   cancelEdit: () =>
     set((s) => ({
@@ -131,6 +165,10 @@ export const useWizardStore = create<WizardState>((set, get) => ({
       selectedExistingDashboardId: null,
       editSnapshot: null,
     }),
+}), {
+  name: 'viq-wizard-form',
+  storage: createJSONStorage(() => sessionStorage),
+  partialize: (s) => ({ form: s.form }),
 }))
 
 /** Spec §3: Submit is disabled until every required field is valid. */
@@ -140,7 +178,10 @@ export function selectIsFormValid(state: WizardState): boolean {
     f.accountNumber.trim().length > 0 &&
     f.companyName !== null &&
     f.displayName.trim().length > 0 &&
-    f.validCompanyNames.length > 0 &&
+    // The Valid Company Names tree is only rendered when contracts are added
+    // automatically (frame B2 hides it on 'No'). Requiring it while it is
+    // hidden left Submit permanently disabled with no field to fill.
+    (f.automaticallyAddContracts === 'no' || f.validCompanyNames.length > 0) &&
     f.contractTypes.length > 0 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.userEmail.trim())
   )

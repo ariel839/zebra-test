@@ -71,6 +71,15 @@ import { create } from 'zustand'
  * remount `Flow.tsx` already does for `TreeSelect`.
  */
 
+/**
+ * The three review arrangements the Figma draws, all of the same seven
+ * fields. `'dividers'` is R2 — a hairline rule under each field, logo card
+ * to the right; `'boxed'` is E1/R1, which puts every field in its own
+ * bordered card instead; `'logoLeft'` is R3, a logo panel on the left with
+ * a shorter set of ruled rows beside it.
+ */
+export type ReviewLayout = 'dividers' | 'boxed' | 'logoLeft'
+
 export interface DemoState {
   /** Which hover targets are forced on. See key examples above. */
   hover: string[]
@@ -82,8 +91,21 @@ export interface DemoState {
   filterQuery: string | null
   /** Seeds FilterPanel's `defaultDraft` (C4 — a country staged but not yet applied). */
   filterDraft: string[] | null
+  /**
+   * Which review-screen arrangement `DashboardSettingsReview` should draw.
+   * Null — the value everywhere outside the flow — means the app's own
+   * review screen, the R2 `'dividers'` layout. The flow's `E1` and `R3`
+   * entries set `'boxed'` and `'logoLeft'` so those alternate layouts stay
+   * reachable for the side-by-side against their own frames.
+   */
+  reviewLayout: ReviewLayout | null
   set: (
-    patch: Partial<Pick<DemoState, 'hover' | 'open' | 'countries' | 'filterQuery' | 'filterDraft'>>,
+    patch: Partial<
+      Pick<
+        DemoState,
+        'hover' | 'open' | 'countries' | 'filterQuery' | 'filterDraft' | 'reviewLayout'
+      >
+    >,
   ) => void
   /** Resets everything to its empty default. Called by the flow route on every screen change. */
   clear: () => void
@@ -97,9 +119,17 @@ export const useDemoStore = create<DemoState>((set) => ({
   countries: null,
   filterQuery: null,
   filterDraft: null,
+  reviewLayout: null,
   set: (patch) => set(patch),
   clear: () =>
-    set({ hover: EMPTY, open: EMPTY, countries: null, filterQuery: null, filterDraft: null }),
+    set({
+      hover: EMPTY,
+      open: EMPTY,
+      countries: null,
+      filterQuery: null,
+      filterDraft: null,
+      reviewLayout: null,
+    }),
 }))
 
 /**

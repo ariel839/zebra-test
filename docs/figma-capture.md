@@ -273,3 +273,62 @@ filter panel: `WIZARD-SPEC.md` §4 gives its position as "roughly x 960-1400,
 y 100-365 in frame coordinates", which are PNG pixels, not frame coordinates —
 converted, the panel is **600 × 360 at design (1276, 120)**, and it was built at
 440 × auto at (960, 100) relative to the tree trigger. Fixed in `FilterPanel.tsx`.
+
+---
+
+## Boxed review layout (E1 / R1)
+
+Built after the fact — `E1` had been skipped as "same as R1, not the layout
+that shipped", but it is the arrangement the dev-notes sticky (`9082:6667`)
+describes for re-entry into the self-onboarding area, and the only review
+frame with an Edit control of its own. It is now the app's review screen;
+R3's arrangement stays reachable at `/flow/R3` through
+`useDemoStore().reviewLayout`.
+
+**Measure against R1, not E1.** The two frames draw the same design, but E1
+is older and sits on a different grid: its sidebar is **218** wide against
+the 232 every other frame (and the built shell) uses, so its whole content
+column lands ~13px left — box column at x275 rather than x288, logo card at
+x1138 rather than x1148. Chasing that would mean a per-screen sidebar width.
+Scored against its own frame E1 reads 6.3; against R1, the same build reads
+**3.05**, in the same band as R3 (2.87) and E2 (3.00).
+
+| Thing | Value (design px, from R1) |
+|---|---|
+| Field box | 684 x 76, radius 6, at content left edge x288 |
+| First box top | y178 (`pt-10` under the shell's 88px title block) |
+| Box pitch | 100.67 — built as 76 + a 24.5px gap, under 2px out at the 7th box |
+| Text inset | 24 from the box's left edge |
+| Label | 16px regular, muted; ink top at box top + 19 |
+| Value | 16px **medium**, full contrast; ink top at + 44 (a 24px baseline pitch) |
+| Chip row | replaces the value line in the two multi-select boxes, top at + 43 |
+| Logo card | 240 x 240 at (1148, 178) — top-aligned with box 1, 176 right of the column |
+| Card caption | 26 right of the card: `Account Logo` 16px muted / `File Name` 16px medium, same 24px pitch |
+| Footer button | the standard 120x40 slot at x1744, y1008 |
+
+Two deliberate deviations, both already precedented:
+
+1. **Footer carries two buttons, not one.** E1 draws only `Edit`, R1 only
+   `Done`. A click-through demo needs both — an exit from review, and the
+   way into edit mode (E2/E3), which is otherwise unreachable. Same
+   reasoning as the Edit control already added to R3. Costs ~18 in the
+   footer cell at (1800,990).
+2. **The `logoipsum` placeholder is a stand-in**, as everywhere else.
+
+### Fixed while measuring this: the placeholder-logo SVG's font never loaded
+
+`PLACEHOLDER_LOGO_SVG` in `src/flow/screens.ts` is consumed as a data URI in
+an `<img>`, and **an SVG rendered that way gets no access to the page's
+webfonts** — its `font-family="Roboto"` was silently falling back to the
+system sans, whose metrics are wider and taller. The wordmark overran the
+120-unit viewBox and pushed the trailing degree mark into the final `m`.
+Invisible on B07's 120px card; obvious on the 240px card this layout draws.
+
+Both frames agree on the target artwork extent once R1's is halved (B07
+`94 x 45` at card-relative (14,36); R1 `186 x 88`, i.e. `93 x 44`), against
+a rendered `99 x 48.5`. Pinning the advance with
+`textLength="85" lengthAdjust="spacingAndGlyphs"`, dropping the second
+circle's radius 11 → 10 and the type 20 → 18 makes it render the same size
+whichever font resolves. Every logo-bearing screen improved and none
+regressed: R3 2.96 → 2.87 (its logo cell 33 → 24), R1 3.15 → 3.05 (43 → 32),
+B07 2.26 → 2.23, B08 2.54 → 2.52, E2 unchanged at 3.00.
