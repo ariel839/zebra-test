@@ -23,7 +23,9 @@ Enter the number in **Account Number** and click out of the field (lookup fires 
 ## Routes
 
 - `/` — Overview page
-- `/setup` — Dashboard settings form; add `?mode=review` for review mode
+- `/setup` — Dashboard settings form; add `?mode=review` for review mode.
+  Review reads live store state, so a cold visit shows empty rows — fill the form
+  first, or use `/flow/R3` to see it populated.
 - `/flow` — Full screen walkthrough (Prev/Next or arrow keys; dropdown for direct access)
 - `/sandbox/tree-select` — Tree select component sandbox. A dev aid: unlinked from the UI but
   deliberately kept in the client build, reachable by URL only.
