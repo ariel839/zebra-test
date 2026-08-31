@@ -29,7 +29,7 @@ export function FieldLabel({
     <span className="mb-[3px] flex items-center gap-1.5 pl-[7px]">
       <label htmlFor={htmlFor} className="text-xs font-normal text-viq-text-muted">
         {label}
-        {required && <span className="text-viq-danger"> *</span>}
+        {required && <span className="ml-[3px] text-viq-danger">*</span>}
       </label>
       {tooltip && (
         <Tooltip content={tooltip} forceOpen={forceTooltipOpen}>

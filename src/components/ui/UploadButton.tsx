@@ -83,16 +83,19 @@ export function UploadButton({ value, onChange, label }: UploadButtonProps) {
         <img
           src={value}
           alt="Logo preview"
-          className={cn(
-            'w-full h-full object-cover',
-            'transition-all duration-200',
-            isHovered && 'opacity-50',
-          )}
+          className="w-full h-full object-cover transition-all duration-200"
         />
 
-        {/* Scrim overlay on hover */}
+        {/* Scrim overlay on hover — B08 (`10489:79003`) shows the logo still
+            fully colourful under the pencil icon, just faintly washed out,
+            not hidden: `--color-viq-logo-scrim` is a flat, fully-opaque
+            sample, so painted at full strength (as a previous pass did,
+            paired with `opacity-50` on the image above) it completely hid
+            the logo instead of dimming it. Low opacity here reproduces the
+            frame; the token itself stays untouched since it's still the
+            right hue, just needs to be used translucently. */}
         {isHovered && (
-          <div className="absolute inset-0 bg-viq-logo-scrim transition-all duration-200" />
+          <div className="absolute inset-0 bg-viq-logo-scrim/20 transition-all duration-200" />
         )}
 
         {/* Pencil icon on hover */}

@@ -32,10 +32,22 @@ export function Overview() {
         <div className="mt-10 grid grid-cols-2 auto-rows-39 gap-x-20">
           {OVERVIEW_COPY.fields.map(({ id, label, icon: Icon, body }) => (
             <div key={id} className="flex gap-2 self-start">
-              <Icon size={18} className="mt-0.5 shrink-0 text-viq-brand-green" />
+              {/* strokeWidth 1.5 and the green are the Figma icon spec: `1.5px solid #7CB824`. */}
+              <Icon
+                size={18}
+                strokeWidth={1.5}
+                className="mt-0.5 shrink-0 text-viq-icon-green"
+              />
               <div className="max-w-175">
-                <h2 className="text-sm font-semibold text-viq-text">{label}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-viq-text-muted">{body}</p>
+                {/* Label: Roboto 600 / 16px / line-height 100% / capitalize (Figma inspect). */}
+                <h2 className="text-base font-semibold capitalize leading-none text-viq-text">
+                  {label}
+                </h2>
+                {/* Body: Roboto 400 / 14px / line-height 100% — the tight leading is
+                    intentional and matches A1_overview__8474-11927.png. */}
+                <p className="mt-1 text-sm font-normal leading-none text-viq-text-muted">
+                  {body}
+                </p>
               </div>
             </div>
           ))}

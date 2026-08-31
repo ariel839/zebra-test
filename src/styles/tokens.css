@@ -68,6 +68,11 @@
                                                large blank sample — the most reliable value in this file) */
   --color-viq-logo-scrim:        #cccccc;  /* grey scrim over the logo card on hover, B08 */
 
+  /* --- Progress bar (B09) --- */
+  --color-viq-progress:          #596372;  /* filled part of B09's progress bar, sampled at (870,603) — a
+                                               slate grey, deliberately NOT --color-viq-primary */
+  --color-viq-progress-track:    #f2f2f2;  /* unfilled part of the same bar, sampled at (1050,603) */
+
   /* --- Tooltip (Row D — added Task 6) --- */
   --color-viq-tooltip-bg:        #ffffff;  /* Task 6: sampled from D1/D2/D3 tooltip box interior, hist over
                                                (328,100)-(495,140) on D1 — flat #ffffff, 100% of a text-free
@@ -80,8 +85,20 @@
                                                on the same value, which is also an exact match for the
                                                existing --color-viq-text-muted. High confidence. */
 
+  /* --- Typography --- */
+  --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* The design is set in Roboto throughout (client-supplied Figma inspect values, 2026-08-31).
+     Loaded from Google Fonts in index.html. Tailwind derives --default-font-family from
+     --font-sans, so overriding it here re-fonts the whole app; index.css also sets it on
+     html explicitly so the body font never depends on that derivation. */
+
   /* --- Icons / status --- */
-  --color-viq-icon-muted:        #7f7f80;  /* info, chevron, search, download, funnel icons — C5 funnel icon */
+  --color-viq-icon-muted:        #7f7f80;
+  --color-viq-icon-green:        #7cb824;  /* overview field icons, A1 — client-supplied Figma inspect
+                                               value (`border: 1.5px solid #7CB824`), 2026-08-31.
+                                               Deliberately NOT --color-viq-brand-green (#baf75b): that
+                                               is the top-strip wordmark, a lighter lime. The 1.5px is
+                                               the icon stroke width, passed as lucide `strokeWidth`. */  /* info, chevron, search, download, funnel icons — C5 funnel icon */
   --color-viq-danger:            #de5c57;  /* required-field asterisk — B01 "Account number *" */
   --color-viq-badge:             #0f2015;  /* dark count badge on the funnel icon, C5 (flat, isolated sample) */
 

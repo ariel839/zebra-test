@@ -237,7 +237,7 @@ export function DashboardSettingsForm() {
               />
             </Col>
             <Col>
-              <div className="mt-[22px] flex">
+              <div className="mt-[18px] flex">
                 <Checkbox
                   checked={form.signUpForLearningSeries}
                   onChange={(checked) => setField('signUpForLearningSeries', checked)}
