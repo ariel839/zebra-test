@@ -276,14 +276,41 @@ converted, the panel is **600 × 360 at design (1276, 120)**, and it was built a
 
 ---
 
+## Divider-lines review layout (R2) — the app's review screen
+
+Built after the fact, on the client's direct instruction: after filling the
+form and pressing Submit, the review screen reads more naturally as ruled
+rows than as bordered cards. `R2` (`10680:15949`) is that arrangement —
+the same seven read-only fields as the boxed layout, each under a hairline
+rule, with the 240x240 logo card to their right — and it is what the app
+renders at `/review`. It is scored at `/flow/R2`.
+
+It reuses the pieces the other two review layouts already had: `ReviewRow`
+(R3's ruled row) for the fields and `ReviewLogoCard` (E1/R1's right-hand
+card) for the logo, and it takes its field list from the same array the
+boxed layout maps, so the two cannot drift. Scores **3.21**, in band with
+R3 (2.87) and E2 (3.00); its worst cell is the `logoipsum` stand-in, as on
+every other logo-bearing frame.
+
+| Thing | Value (design px, from R2) |
+|---|---|
+| Row column | 684 wide at content left edge x288 — the rules stop at x971, they do not run to the window edge |
+| Row pitch | 103.67 in the frame (rules at y267/371/475/579/682/785/889); `ReviewRow` renders 103, so the 7th rule lands 3px high |
+| First rule | y268 (`pt-7` under the shell's 88px title block) against the frame's y267 |
+| Logo card | 240 x 240 at (1148, 175) — 176 right of the row column, and 9px *below* where the rows start, hence `mt-[9px]` rather than a shared container offset |
+
+Two deliberate deviations, both precedented below: the footer carries `Edit`
+alongside `Done` (R2's frame draws only `Done`), and the `logoipsum` mark is
+a stand-in.
+
 ## Boxed review layout (E1 / R1)
 
 Built after the fact — `E1` had been skipped as "same as R1, not the layout
 that shipped", but it is the arrangement the dev-notes sticky (`9082:6667`)
 describes for re-entry into the self-onboarding area, and the only review
-frame with an Edit control of its own. It is now the app's review screen;
-R3's arrangement stays reachable at `/flow/R3` through
-`useDemoStore().reviewLayout`.
+frame with an Edit control of its own. It was the app's review screen until
+R2 replaced it; it now stays reachable at `/flow/E1`, as R3's arrangement
+does at `/flow/R3`, both through `useDemoStore().reviewLayout`.
 
 **Measure against R1, not E1.** The two frames draw the same design, but E1
 is older and sits on a different grid: its sidebar is **218** wide against

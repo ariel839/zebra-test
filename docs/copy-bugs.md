@@ -46,9 +46,20 @@ The Figma section carries four different review-mode arrangements:
 - `R3`: Logo-left layout
 - `R4`: Logo-top layout
 
-**`R3` was chosen and built; the other three were not.** This is a deliberate, user-approved scope decision. The addition of an `Edit` button beside `Done` in R3 is deliberate — without it, edit mode is unreachable from review.
+**Three of the four are built: `R2`, `E1` and `R3`.** `R2` is what the app
+itself renders at `/review` — chosen by the client after seeing the boxed
+cards, as the more natural read of a completed form. `E1` (boxed) and `R3`
+(logo-left) stay reachable in the flow for side-by-side comparison against
+their own frames. `R1` is `E1`'s layout under a `Done` footer instead of an
+`Edit` one, so `E1` already covers it bar that button; `R4` (logo on top) was
+not built.
 
-**Overall:** 31 of the 35 UI frames in the Figma are implemented. The four unbuilt frames (`E1`, `R1`, `R2`, `R4`) represent alternative layouts the user declined; the remaining 31 all ship in this build.
+The addition of an `Edit` button beside `Done` is deliberate on every review
+layout — without it, edit mode is unreachable from review.
+
+**Overall:** 33 of the 35 UI frames in the Figma are implemented. The two
+unbuilt frames (`R1`, `R4`) are alternative arrangements of the review
+screen; the remaining 33 all ship in this build.
 
 ## Accessibility measurement
 
