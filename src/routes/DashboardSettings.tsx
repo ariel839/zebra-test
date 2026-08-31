@@ -1,9 +1,5 @@
-import { WizardShell } from '@/components/wizard/WizardShell'
+import { DashboardSettingsForm } from '@/routes/DashboardSettingsForm'
 
 export function DashboardSettings() {
-  return (
-    <WizardShell title="Dashboard Settings" footer={null}>
-      <div />
-    </WizardShell>
-  )
+  return <DashboardSettingsForm />
 }
