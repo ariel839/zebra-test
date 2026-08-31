@@ -29,6 +29,8 @@ These are real typos in the Figma that the build reproduces deliberately. The cl
 
 - **R3 edit control:** R3 (the chosen review layout) has no edit control of its own. An `Edit` button was added beside `Done` in the build to make edit mode reachable; without it, the mode cannot be entered from review. Confirm this addition is acceptable.
 
+- **Colour contrast below WCAG AA:** two Figma-sampled tokens fail the 4.5:1 minimum for normal-size text, so a Lighthouse accessibility run flags every screen. Muted body text `--color-viq-text-muted` `#7c7c7d` on white measures **4.16:1** (Overview intro, every field description, R3 labels), and white text on the primary button `--color-viq-primary` `#6b7ecb` measures **3.83:1** (`Next`, `Submit`, `Done`). Both were reproduced faithfully from the frames rather than corrected. Darkening the muted grey to roughly `#6e6e6f` and the primary to roughly `#5a6cbd` would clear AA with a barely perceptible shift — confirm before we change either.
+
 - **Focus ring accessibility:** No blue focus ring exists in any frame — the focus indicator is a CSS convention, not a visual match to the design. This is an accessibility gap in the source design; plan a focus treatment that meets WCAG 2.1 AA.
 
 ## Scope
@@ -43,3 +45,16 @@ The Figma section carries four different review-mode arrangements:
 **`R3` was chosen and built; the other three were not.** This is a deliberate, user-approved scope decision. The addition of an `Edit` button beside `Done` in R3 is deliberate — without it, edit mode is unreachable from review.
 
 **Overall:** 31 of the 35 UI frames in the Figma are implemented. The four unbuilt frames (`E1`, `R1`, `R2`, `R4`) represent alternative layouts the user declined; the remaining 31 all ship in this build.
+
+## Accessibility measurement
+
+Lighthouse 13.3.0, accessibility category only, run against the production build (`vite preview`), headless Chrome:
+
+| Route | Desktop preset | Mobile preset |
+|---|---|---|
+| `/` | 94 | 89 |
+| `/setup` | 95 | 90 |
+| `/review` | 95 | 90 |
+| `/flow` | 95 | 90 |
+
+Desktop is the figure that applies: the build is a fixed-1920 desktop prototype. The only failing desktop audit is `color-contrast` (the two tokens above). The mobile preset additionally fails `target-size` — Lighthouse emulates a 412px-wide viewport, which the scale-to-fit canvas shrinks by ~0.21, so a 232x40 design-px sidebar item measures 8.6px tall to the audit. That is an artefact of emulating a phone against a desktop-only canvas, not a real hit area problem.

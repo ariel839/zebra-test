@@ -25,11 +25,12 @@ Enter the number in **Account Number** and click out of the field (lookup fires 
 - `/` — Overview page
 - `/setup` — Dashboard settings form; add `?mode=review` for review mode
 - `/flow` — Full screen walkthrough (Prev/Next or arrow keys; dropdown for direct access)
-- `/sandbox/tree-select` — Dev-only tree select component sandbox
+- `/sandbox/tree-select` — Tree select component sandbox. A dev aid: unlinked from the UI but
+  deliberately kept in the client build, reachable by URL only.
 
 ## Display
 
-The design is fixed at 1920×1080 with a scale-to-fit wrapper. At smaller window sizes, the entire UI scales down uniformly (no responsive breakpoints, no horizontal scroll).
+The design is fixed at 1920 design px wide with a scale-to-fit wrapper (`src/components/wizard/ScaleToFit.tsx`): the canvas is scaled uniformly by `viewportWidth / 1920` and its height is derived from the viewport, so the UI always fills the window completely — no letterbox bars, no responsive breakpoints, no horizontal scroll. Height is free because the shell is flex-based; only width is fixed by design decision.
 
 ## Documentation
 
