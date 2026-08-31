@@ -201,9 +201,10 @@ export default defineConfig({
 Add to `tsconfig.app.json` under `compilerOptions` so editors and `tsc -b` agree with Vite:
 
 ```json
-"baseUrl": ".",
-"paths": { "@/*": ["src/*"] }
+"paths": { "@/*": ["./src/*"] }
 ```
+
+**No `baseUrl`.** TypeScript 6 deprecates it (TS5101) and 7 removes it; `paths` has resolved relative to the tsconfig file since TS 5.0. Adding `baseUrl` forces an `ignoreDeprecations` suppression that would have to be undone later — do not add either.
 
 - [ ] **Step 4: Replace the scaffold entry files**
 
