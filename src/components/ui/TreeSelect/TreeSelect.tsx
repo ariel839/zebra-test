@@ -4,16 +4,17 @@ import { ChipGroup } from '@/components/ui/ChipGroup'
 import { FieldLabel } from '@/components/ui/FieldLabel'
 import { cn } from '@/lib/cn'
 import { FilterPanel } from './FilterPanel'
-import { collectLeafIds, rollUpSelection } from './treeSelection'
+import { collectLeafIds, selectedLabels } from './treeSelection'
 import { TreeSelectPanel } from './TreeSelectPanel'
 import type { CompanyNode } from './types'
 
 /**
- * Depth-first search for the node whose `label` matches a roll-up chip.
- * Roll-up labels are only ever produced (by `rollUpSelection`) for nodes
- * that are fully checked, so a match here always exists for a chip that
- * came from this tree — but the lookup is written defensively (`undefined`
- * on a miss) rather than assuming that invariant.
+ * Depth-first search for the node whose `label` matches a chip.
+ * `selectedLabels` only ever emits labels of fully-checked nodes, so a match
+ * here always exists for a chip that came from this tree — but the lookup is
+ * written defensively (`undefined` on a miss) rather than assuming that
+ * invariant. Removing a child chip therefore also drops its parent's chip,
+ * since the parent stops being fully checked.
  */
 function findNodeByLabel(nodes: CompanyNode[], label: string): CompanyNode | undefined {
   for (const node of nodes) {
@@ -84,7 +85,7 @@ export function TreeSelect({
   const [filterPanelOpen, setFilterPanelOpen] = useState(defaultFilterPanelOpen)
 
   const selected = useMemo(() => new Set(value), [value])
-  const rollUp = useMemo(() => rollUpSelection(tree, selected), [tree, selected])
+  const chipLabels = useMemo(() => selectedLabels(tree, selected), [tree, selected])
 
   function handleChipRemove(label: string) {
     const node = findNodeByLabel(tree, label)
@@ -154,9 +155,9 @@ export function TreeSelect({
           defaultDraft={defaultFilterDraft}
         />
       </div>
-      {rollUp.length > 0 && (
-        <div className="mt-1.5">
-          <ChipGroup labels={rollUp} max={2} onRemove={handleChipRemove} />
+      {chipLabels.length > 0 && (
+        <div className="mt-3">
+          <ChipGroup labels={chipLabels} max={2} onRemove={handleChipRemove} />
         </div>
       )}
     </div>

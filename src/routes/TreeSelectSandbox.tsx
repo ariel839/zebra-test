@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TreeSelect } from '@/components/ui/TreeSelect/TreeSelect'
-import { rollUpSelection } from '@/components/ui/TreeSelect/treeSelection'
+import { selectedLabels } from '@/components/ui/TreeSelect/treeSelection'
 import { WizardShell } from '@/components/wizard/WizardShell'
 import { COMPANY_TREE } from '@/mocks/companyTree'
 
@@ -13,7 +13,7 @@ import { COMPANY_TREE } from '@/mocks/companyTree'
  */
 export function TreeSelectSandbox() {
   const [selected, setSelected] = useState<string[]>([])
-  const rollUp = rollUpSelection(COMPANY_TREE, new Set(selected))
+  const labels = selectedLabels(COMPANY_TREE, new Set(selected))
 
   return (
     <WizardShell title="TreeSelect sandbox" footer={null} activeNavId="dashboard-settings">
@@ -32,7 +32,7 @@ export function TreeSelectSandbox() {
           {JSON.stringify(
             {
               selectedLeafIds: selected,
-              rollUpSelection: rollUp,
+              selectedLabels: labels,
             },
             null,
             2,

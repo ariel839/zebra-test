@@ -73,7 +73,7 @@ export function UploadButton({ value, onChange, label }: UploadButtonProps) {
       />
       <div
         className={cn(
-          'relative w-28 h-28 rounded-viq-control border border-viq-border overflow-hidden',
+          'relative w-30 h-30 rounded-viq-control border border-viq-border overflow-hidden',
           'transition-all cursor-pointer',
         )}
         onMouseEnter={() => setIsHovered(true)}

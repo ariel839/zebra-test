@@ -5,13 +5,13 @@ import type { CompanyNode } from './types'
  * any descendant matches — so ancestors of a match stay visible. Spec §4.
  * An empty query and an empty country list are both no-ops.
  *
- * When a branch matches by its own name but none of its children match, the
- * branch is kept with `children: []` rather than its full child list — a
- * name match shows the branch itself, not an unrelated subtree. No search
- * frame in wizard-spec-files/screens/ exercises company-name text search
- * (C-row covers only the country filter), so this default is unverified
- * against a screenshot; swap to `children: n.children` if a future frame
- * shows otherwise.
+ * A node that matches on its own keeps its **whole** subtree, unpruned.
+ * Filtering by `United States` matches the `LKQ Corporation` branch but none
+ * of its (UK/CZ/…) subsidiaries; pruning them away would leave a dead-end
+ * row that shows nothing and — since `collectLeafIds` treats a childless
+ * node as a leaf — would put the branch's own id into the leaf-only
+ * selection set. Keeping the subtree makes the match expandable and
+ * selectable as the group it is.
  */
 export function filterTree(
   tree: CompanyNode[],
@@ -27,10 +27,10 @@ export function filterTree(
 
   const prune = (nodes: CompanyNode[]): CompanyNode[] =>
     nodes.flatMap((n): CompanyNode[] => {
+      if (selfMatches(n)) return [n]
       const kids = n.children ? prune(n.children) : []
       if (kids.length > 0) return [{ ...n, children: kids }]
-      if (!selfMatches(n)) return []
-      return [{ ...n, children: n.children ? [] : undefined }]
+      return []
     })
 
   return prune(tree)

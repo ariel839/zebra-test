@@ -161,3 +161,115 @@ here per the task brief rather than blocking on them:
    disabled styling instead?
 5. **`R3` (review, logo left) has no edit control of its own** — unlike the other review layouts,
    there's no visible way to get from R3 back into edit mode.
+
+---
+
+# Measured frame geometry (2026-08-31, second pass)
+
+Everything below was read off the reference PNGs with `tools/fidelity/px.mjs`,
+mapping through each frame's detected artboard rect (see that folder's README —
+the PNGs are Figma screenshots, so the 1920x1080 artboard sits at ~(20,11) at
+1411x795 and must be cropped before anything is compared). Values are design px
+on the 1920x1080 canvas. Where a value contradicts a Figma *inspect* reading,
+the frame won: Figma reports `line-height: 100%` for A1's copy, but that is its
+"Auto" setting and the frame renders a 17.5px pitch on the intro and 17px on the
+item bodies.
+
+## Shell
+
+| Thing | Value | Read from |
+|---|---|---|
+| Top strip height | 50 | B01 col 300 (`0-49`) |
+| Strip wordmark | 16px/600, starts x16, full string 250 wide | B01, green run 18..165 |
+| Strip is NOT scrimmed by modals/overlays | `#111b02` on B01, F2 and B09 alike | colour samples |
+| Sidebar width | 232 (divider at x231-233) | B01 row 214 |
+| Nav pill | x8..223, first pill y72..112, 48px pitch, label inset 18 | B01 row 93, col 12 |
+| Page heading | 28px/600, glyph box x290..534 y86..112 | B01 bbox |
+| Content left edge | 288 (`px-14` off the 232 sidebar) | every row scan |
+| Content divider | y981 | B01 col 300 |
+| Footer buttons | 120x40, 32 apart, Back x1592..1712, Submit x1744..1864, top 1008 | B01/B07 footer scans |
+
+## Form grid (Row B, C, D, F, G)
+
+| Thing | Value |
+|---|---|
+| Control height | 36 (not 40) |
+| Control width | 260; column 2 starts x580 |
+| Row pitch | 86 = label 16 + 3 + control 36 + 31 |
+| First control top | y196 |
+| Field label | 12px/16, inset 7px from the control's left edge, 3px above it |
+| Required asterisk | 3px after the label |
+| Radio options | 64 apart (No circle x580, Yes circle x684) |
+| Learning-series checkbox | 18px below its row top, not centred on the control opposite |
+| Chips | 22 tall, 4 apart, 12 below the control (top y415) |
+| Upload Logo button | 125x41 at y521; uploaded card 120x120 at y554..674 |
+| Placeholder logo | the "logoipsum" mark: #113322 square, #4a4582 and #8e3f5a circles |
+
+## Overlays (B09, B10)
+
+Card 630x378, centred on the canvas at (645, 351). Page behind stays legible,
+darkened — NOT hidden and NOT washed white. Order is illustration, title,
+progress bar, percentage, description: the percentage sits **under** the bar.
+
+| Thing | Value |
+|---|---|
+| Title | 20px/600 ("Scanning Information" 193 wide) |
+| Progress bar | 220x6 at y600, fill `#596372`, track `#f2f2f2` |
+| Percentage | 14px, glyph y620..633 |
+| Description | 18px, one line, 471 wide |
+
+The frame's illustration is a line-art scanner with a grey blob — an asset we
+were never given. A lucide glyph stands in at the measured size. **Flag for the
+client.**
+
+## Modal (Rows F and G)
+
+| Thing | Value |
+|---|---|
+| Box | 1437 wide at x242, height follows content, centred at y540 (F2 y277..804, G2 y329..753) |
+| Padding | 56 sides, 52 top, 54 bottom |
+| Title | 20px/600 |
+| Body copy | 16px, 9 below the title |
+| Section heading | 16px/600, 59 below the body |
+| Table | 12px throughout; 5 columns on a 242 pitch from x298; header row 22 tall; rows 48; a divider under the LAST row too |
+| Footer button | 180x40, 39 under the last divider |
+| Scrim | ~16% of `#6b6b6b` below the strip: white 255 -> 231 while the page heading's own row goes 136 -> 132. A white wash lightens the page; an opaque fill hides it. Both are wrong. |
+
+## A1 (Overview)
+
+Intro at 14px with a 17.5px pitch, max ~700 wide (it wraps after
+"confgure your"), starting at y124 — 14px under the heading, i.e. above where
+the shell's 88px title block hands over. Item grid inset 12px (icons x300, text
+x321), right column text at x1163 (a 120px column gap), item titles 16px/600,
+bodies 14px with a 17px pitch, ~78px row gap.
+
+**Known remainder:** the frame's fourth left-column item (`Contract Type`) sits
+~30px lower than any uniform grid gap produces — rows 1-3 match to 2px, so the
+frames look hand-placed there rather than grid-driven. Not chased.
+
+---
+
+## Scale correction — the screens are NOT 1456/1920 = 0.758
+
+Measured while rebuilding the filter panel (Row C) and it invalidates every
+*dimension* previously read off these PNGs:
+
+Each export is 1456×832, but that includes Figma's selection chrome — a grey
+mat and the blue selection rectangle around the frame, plus the `1920 x 1080`
+size label under it. The 1920×1080 frame itself is the inner rectangle:
+
+- origin **(21.5, 11.5)** in PNG pixels (the blue border sits on the frame edge)
+- **1410 × 794** PNG px for 1920 × 1080 design px
+- scale **1410/1920 = 0.734375** (the vertical, 794/1080 = 0.7352, agrees)
+
+So `design = (png − 21.5) / 0.734375` horizontally, `(png − 11.5) / 0.734375`
+vertically. Cross-checks: the form's input boxes come out 260 design px wide
+(the code's `w-[260px]`), the sidebar border at x≈231, the top strip ≈48 tall.
+
+The colour table above is unaffected — every entry there is a *location* in the
+PNG, and locations did not change. What is affected is anything that converted
+a PNG measurement into a design px size or position. The known casualty was the
+filter panel: `WIZARD-SPEC.md` §4 gives its position as "roughly x 960-1400,
+y 100-365 in frame coordinates", which are PNG pixels, not frame coordinates —
+converted, the panel is **600 × 360 at design (1276, 120)**, and it was built at
+440 × auto at (960, 100) relative to the tree trigger. Fixed in `FilterPanel.tsx`.

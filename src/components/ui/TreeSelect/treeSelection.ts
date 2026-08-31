@@ -37,17 +37,28 @@ export function nodeState(
 }
 
 /**
- * Chip labels: the highest fully-selected nodes. Selecting all of
- * 'Euro Car Parts' yields one chip 'Euro Car Parts', not three leaf chips —
- * which is what Figma 10489:78667 shows.
+ * Chip labels, in tree order: **every** node whose whole subtree is selected
+ * gets its own label — a fully-checked parent AND each of its descendants.
+ *
+ * This is deliberately NOT a roll-up. Figma B07 (`10489:78667`) shows the
+ * chips `Euro Car Parts` · `Euro Car Parts Ltd` · `+3`, and `Euro Car Parts
+ * Ltd` is a *child* of `Euro Car Parts` — a pair a "highest fully-selected
+ * node only" rule can never produce (a checked parent would swallow it, an
+ * indeterminate parent would emit no chip of its own). Selecting the whole
+ * `Euro Car Parts` branch plus one more leaf yields exactly the five labels
+ * that frame's `+3` implies.
+ *
+ * An unchecked subtree is skipped whole; an indeterminate one emits no label
+ * for itself but is still descended into.
  */
-export function rollUpSelection(tree: CompanyNode[], selected: Set<string>): string[] {
+export function selectedLabels(tree: CompanyNode[], selected: Set<string>): string[] {
   const out: string[] = []
   const walk = (nodes: CompanyNode[]) => {
     for (const n of nodes) {
       const state = nodeState(n, selected)
+      if (state === 'unchecked') continue
       if (state === 'checked') out.push(n.label)
-      else if (state === 'indeterminate' && n.children) walk(n.children)
+      if (n.children) walk(n.children)
     }
   }
   walk(tree)

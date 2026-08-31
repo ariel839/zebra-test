@@ -21,55 +21,63 @@ export interface ChipProps {
 
 /**
  * Outline chip, spec §4 / Figma B07 (`10489:78667`) — the resting state is
- * just the label. Hover (or keyboard focus, for parity) grows an `×`,
- * swaps the border to the focus/primary blue and fills the chip with the
- * hover grey, per B08 (`10489:79003`, "IOT Mobile Computer ×").
+ * just the label.
  *
- * The `×`'s slot is always in the DOM at a fixed width; only its opacity
- * changes on hover. That's deliberate — a chip that widens on hover makes
- * a whole row reflow under the mouse, which reads as broken in a client
- * demo. When `onRemove` isn't supplied the slot still reveals a
- * (non-interactive) `×` on hover, so the visual treatment from B08 is
- * consistent everywhere a hoverable chip appears, whether or not this
- * particular call site has wired removal.
+ * Geometry measured off the B07 frame (1456px render of the 1920 artboard,
+ * scale 0.7583): the `Euro Car Parts` chip is 70 render px wide, `Euro Car
+ * Parts Ltd` 85, `IOT Printer` 55 — i.e. 92 / 112 / 72 real px. Roboto 12px
+ * sets those three labels at 78 / 98 / 58px, so the box is `text + 12px`:
+ * a 1px border plus **6px** of horizontal padding a side. Height is 15.5
+ * render px → 20px, hence `h-5` with `leading-none` and centred content.
+ * The row gap is 3 render px → `gap-1`.
+ *
+ * **The chip grows on hover** — spec §4 says so ("a chip on hover grows an
+ * `×`"), and B07/B08 measure it: `IOT Mobile Computer` is 96 render px at
+ * rest and 113 hovered, and `IOT Printer` next to it shifts right by the
+ * same amount. So the `×` is *not* given a reserved slot at rest; it costs
+ * `gap-1.5` + a 16px icon on hover, which is the 22px of real growth the
+ * two frames differ by. Reserving it instead (the plan's original guess)
+ * padded every chip by 16px and truncated the labels — `Euro Car P…` —
+ * inside the 260px form column, which is the one thing the chip row must
+ * never do.
+ *
+ * Nothing here truncates and nothing shrinks: a chip is always exactly as
+ * wide as its label. `ChipGroup` wraps the row rather than squeezing it.
  */
 export function Chip({ label, onRemove, hoverable = true, className, forceHover }: ChipProps) {
   return (
     <span
       className={cn(
-        'group inline-flex min-w-0 items-center gap-1 whitespace-nowrap rounded-viq-control border px-2 py-1 text-xs text-viq-text',
+        'group inline-flex h-5 shrink-0 items-center whitespace-nowrap rounded-viq-control border px-1.5 text-xs leading-none text-viq-text',
         'border-viq-border',
+        hoverable && 'gap-1.5',
         hoverable &&
           'hover:border-viq-border-focus hover:bg-viq-surface-hover focus-within:border-viq-border-focus focus-within:bg-viq-surface-hover',
         hoverable && forceHover && 'border-viq-border-focus bg-viq-surface-hover',
         className,
       )}
     >
-      <span className="truncate">{label}</span>
+      <span>{label}</span>
       {hoverable && (
-        <span className="flex w-3 shrink-0 items-center justify-center">
+        <span
+          className={cn(
+            'shrink-0 items-center justify-center',
+            // `cn` is a plain join, not tailwind-merge, so never ship
+            // `hidden` and `flex` together and hope the cascade picks right.
+            forceHover ? 'flex' : 'hidden group-hover:flex group-focus-within:flex',
+          )}
+        >
           {onRemove ? (
             <button
               type="button"
               onClick={onRemove}
               aria-label={`Remove ${label}`}
-              className={cn(
-                'flex items-center justify-center text-viq-icon-muted opacity-0',
-                'hover:text-viq-text group-hover:opacity-100 group-focus-within:opacity-100',
-                forceHover && 'opacity-100',
-              )}
+              className="flex items-center justify-center text-viq-icon-muted hover:text-viq-text"
             >
-              <X size={12} />
+              <X size={16} />
             </button>
           ) : (
-            <X
-              size={12}
-              aria-hidden="true"
-              className={cn(
-                'text-viq-icon-muted opacity-0 group-hover:opacity-100',
-                forceHover && 'opacity-100',
-              )}
-            />
+            <X size={16} aria-hidden="true" className="text-viq-icon-muted" />
           )}
         </span>
       )}

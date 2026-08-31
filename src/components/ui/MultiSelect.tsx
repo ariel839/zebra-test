@@ -111,7 +111,7 @@ export function MultiSelect({
         )}
       </div>
       {value.length > 0 && (
-        <div className="mt-1.5">
+        <div className="mt-3">
           <ChipGroup
             labels={value}
             max={2}

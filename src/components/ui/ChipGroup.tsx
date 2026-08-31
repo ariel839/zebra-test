@@ -14,12 +14,18 @@ export interface ChipGroupProps {
  * `Euro Car Parts`, `Euro Car Parts Ltd`, `+3`. Anything past `max` labels
  * collapses into a trailing, non-removable `+N` chip; `N` must render as a
  * two-digit count without clipping — the review screens show `+30`.
+ *
+ * The row **wraps**; it never squeezes. Chips are `shrink-0` and never
+ * truncate, so when a hovered chip grows its `×` inside the form's 260px
+ * column the overflow moves to a second line instead of chopping labels
+ * into `Euro Car P…`. At B07's own content the row still fits one line:
+ * 91 + 4 + 111 + 4 + 28 = 238px of a 260px column.
  */
 export function ChipGroup({ labels, max = 2, onRemove, forceHoverLabel }: ChipGroupProps) {
   const shown = labels.slice(0, max)
   const overflow = labels.length - shown.length
   return (
-    <div className="flex flex-nowrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1">
       {shown.map((l) => (
         <Chip
           key={l}

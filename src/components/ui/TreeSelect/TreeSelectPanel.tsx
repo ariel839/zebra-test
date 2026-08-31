@@ -89,17 +89,25 @@ export function TreeSelectPanel({
               className="h-6 w-6 shrink-0"
             />
           </div>
+          {/*
+            `Select All` sits at the same x as a depth-0 node in Figma
+            10489:78221 (both checkboxes measure to x=250 in the frame), so it
+            takes `TreeNodeRow`'s depth-0 padding and puts its chevron-width
+            spacer on the trailing edge, exactly as a row does.
+          */}
           <div
             className="flex h-8 items-center gap-0 pr-1 hover:bg-viq-surface-hover"
             style={{ paddingLeft: 8 }}
           >
+            <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+              <Checkbox
+                checked={selectAllState === 'checked'}
+                indeterminate={selectAllState === 'indeterminate'}
+                label="Select All"
+                onChange={toggleSelectAll}
+              />
+            </div>
             <span className="w-2.5 shrink-0" />
-            <Checkbox
-              checked={selectAllState === 'checked'}
-              indeterminate={selectAllState === 'indeterminate'}
-              label="Select All"
-              onChange={toggleSelectAll}
-            />
           </div>
         </div>
         {visible.length === 0 ? (

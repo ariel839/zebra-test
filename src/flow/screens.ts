@@ -41,9 +41,19 @@ export interface FlowScreen {
  * without a real file upload (no backend, no fetch — a data URI is neither).
  */
 const PLACEHOLDER_LOGO_SVG =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">' +
-  '<rect width="120" height="120" fill="#6b7ecb"/>' +
-  '<text x="60" y="66" font-family="sans-serif" font-size="18" fill="#ffffff" text-anchor="middle">LOGO</text>' +
+  // Traced off B07's 120x120 logo card (x288..408, y554..674): the frame uses
+  // the "logoipsum" placeholder mark — a dark-green square (#113322) and two
+  // circles (#4a4582, #8e3f5a) on a 20px row at card-relative y36, with the
+  // wordmark under it at y62..80. Reproduced here so the demo screens show the
+  // same artwork the frames do instead of a flat blue swatch.
+  '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
+  '<rect width="120" height="120" fill="#ffffff"/>' +
+  '<rect x="14" y="36" width="20" height="20" fill="#113322"/>' +
+  '<circle cx="46" cy="46" r="10" fill="#4a4582"/>' +
+  '<circle cx="68" cy="46" r="11" fill="#8e3f5a"/>' +
+  '<text x="14" y="79" font-family="Roboto, sans-serif" font-size="20" font-weight="700"' +
+  ' fill="#111111">logoipsum</text>' +
+  '<circle cx="103" cy="64" r="2.5" fill="#111111"/>' +
   '</svg>'
 const PLACEHOLDER_LOGO = `data:image/svg+xml;utf8,${encodeURIComponent(PLACEHOLDER_LOGO_SVG)}`
 
@@ -52,28 +62,49 @@ function leavesOf(node: CompanyNode): string[] {
   return node.children.flatMap(leavesOf)
 }
 
+function leavesOfBranch(path: string): string[] {
+  const find = (nodes: CompanyNode[]): CompanyNode | undefined => {
+    for (const n of nodes) {
+      if (n.id === path) return n
+      const hit = n.children && find(n.children)
+      if (hit) return hit
+    }
+    return undefined
+  }
+  const node = find(COMPANY_TREE)
+  if (!node) throw new Error(`No such company-tree node: ${path}`)
+  return leavesOf(node)
+}
+
 /**
- * Selects enough `COMPANY_TREE` leaves that the review screen's chip row
- * (max 4 shown, spec/B07/R3) overflows into a two-digit `+NN` chip.
+ * B07 / E2's chip row, verbatim: `Euro Car Parts` · `Euro Car Parts Ltd` · `+3`.
  *
- * 'Euro Car Parts' (`lkq.ecp`) is selected in full so `rollUpSelection`
- * collapses it into one "Euro Car Parts" chip — this is also B08's hover
- * target (`chip:ecp` in the Task 17a handoff table). Every OTHER second-tier
- * node gets all but one leaf selected, so it stays 'indeterminate' and
- * `rollUpSelection` lists its selected leaves individually instead of
- * collapsing them into a single chip — that's what pushes the total shown-
- * label count well past the `max={4}` cutoff in review mode.
+ * `selectedLabels` emits a label for every fully-checked node, so the whole
+ * `Euro Car Parts` branch is four labels (the parent plus its three leaves)
+ * and one extra leaf makes five — which is exactly the two shown chips plus
+ * `+3` at the form's `max={2}`. The extra leaf is `Auto Kelly a.s.`, chosen
+ * because it sorts after the Euro Car Parts branch, so the two *visible*
+ * chips are the ones the frame draws.
  */
 function buildFilledTreeSelection(): string[] {
+  return [...leavesOfBranch('lkq.ecp'), 'lkq.ak.cz']
+}
+
+/**
+ * The review frames (R3, E2, E3) draw a fuller selection than B07 does: every
+ * second-tier branch contributes, and all but one leaf of each branch other
+ * than `Euro Car Parts` is checked, so those branches stay indeterminate and
+ * list their leaves individually instead of collapsing to one chip. That is
+ * what pushes the label count past the review chip row's `max` and produces
+ * its two-digit `+NN`.
+ */
+function buildReviewTreeSelection(): string[] {
   const ids: string[] = []
   for (const brand of COMPANY_TREE) {
     for (const mid of brand.children ?? []) {
       const leaves = leavesOf(mid)
-      if (mid.id === 'lkq.ecp') {
-        ids.push(...leaves)
-      } else {
-        ids.push(...leaves.slice(0, -1))
-      }
+      if (mid.id === 'lkq.ecp') ids.push(...leaves)
+      else ids.push(...leaves.slice(0, -1))
     }
   }
   return ids
@@ -92,6 +123,12 @@ export const FILLED_FORM: WizardForm = {
   userEmail: 'Useremail@gmail.com',
   signUpForLearningSeries: false,
   companyLogo: PLACEHOLDER_LOGO,
+}
+
+/** `FILLED_FORM` with the larger selection the read-only review frames draw. */
+export const REVIEW_FILLED_FORM: WizardForm = {
+  ...FILLED_FORM,
+  validCompanyNames: buildReviewTreeSelection(),
 }
 
 // ---------------------------------------------------------------------------
@@ -232,10 +269,11 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11153:92265',
     png: 'C1_click-filter-icon__11153-92265.png',
     route: '/setup',
-    // Tree dropdown open + filter panel open, both empty — the panel just
-    // opened from the funnel icon, nothing typed or staged yet.
+    // Tree dropdown open, filter panel still CLOSED — the frame is the
+    // moment of the click on the funnel icon, and it shows no panel at all
+    // (verified against the render: nothing is drawn right of the form).
     setup: () => {
-      useDemoStore.getState().set({ open: ['tree', 'filterPanel'] })
+      useDemoStore.getState().set({ open: ['tree'] })
     },
   },
   {
@@ -244,9 +282,10 @@ export const FLOW_SCREENS: FlowScreen[] = [
     node: '11137:85205',
     png: 'C2_type-country-region__11137-85205.png',
     route: '/setup',
-    // 'Ca' typed into the filter panel's search box, not yet added.
+    // Panel open with an empty search box — the frame draws a text caret
+    // and no suggestions, so nothing is typed yet. C3 is the typed state.
     setup: () => {
-      useDemoStore.getState().set({ open: ['tree', 'filterPanel'], filterQuery: 'Ca' })
+      useDemoStore.getState().set({ open: ['tree', 'filterPanel'] })
     },
   },
   {
@@ -321,9 +360,7 @@ export const FLOW_SCREENS: FlowScreen[] = [
     // the **Company name** tooltip open, carrying the same string as D2, and
     // the Submit button in its hover state. That is what this reproduces.
     setup: () => {
-      useDemoStore
-        .getState()
-        .set({ open: ['tooltip:companyName'], hover: ['button:submit'] })
+      useDemoStore.getState().set({ open: ['tooltip:companyName'], hover: ['button:submit'] })
     },
   },
 
@@ -479,7 +516,7 @@ export const FLOW_SCREENS: FlowScreen[] = [
     png: 'R3_review-logo-left__10680-16436.png',
     route: '/review',
     setup: () => {
-      useWizardStore.setState({ form: FILLED_FORM, mode: 'review' })
+      useWizardStore.setState({ form: REVIEW_FILLED_FORM, mode: 'review' })
     },
   },
 ]

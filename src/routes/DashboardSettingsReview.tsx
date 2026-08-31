@@ -10,7 +10,7 @@ import { MultiSelect } from '@/components/ui/MultiSelect'
 import { RadioGroup } from '@/components/ui/RadioGroup'
 import { Select, type SelectOption } from '@/components/ui/Select'
 import { TreeSelect } from '@/components/ui/TreeSelect/TreeSelect'
-import { rollUpSelection } from '@/components/ui/TreeSelect/treeSelection'
+import { selectedLabels } from '@/components/ui/TreeSelect/treeSelection'
 import { UploadButton } from '@/components/ui/UploadButton'
 import { ReviewLogoPanel } from '@/components/wizard/ReviewLogoPanel'
 import { ReviewRow } from '@/components/wizard/ReviewRow'
@@ -233,7 +233,7 @@ export function DashboardSettingsReview() {
             label={rows.validCompanyNames}
             value={
               <ChipGroup
-                labels={rollUpSelection(COMPANY_TREE, new Set(form.validCompanyNames))}
+                labels={selectedLabels(COMPANY_TREE, new Set(form.validCompanyNames))}
                 max={4}
               />
             }
