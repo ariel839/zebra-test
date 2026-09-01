@@ -106,8 +106,15 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
           // 1437x(auto) at x=242 on every Row F / Row G frame: F2 and F3 span
           // x 242..1678, and G2 (one row) is the same width but shorter, so
           // the width is fixed and the height follows the table.
-          'absolute top-[calc(50%-25px)] left-1/2 flex max-h-[85%] w-[1437px] -translate-x-1/2 -translate-y-1/2',
-          'flex-col overflow-hidden rounded-viq-modal bg-white shadow-xl',
+          //
+          // `min()` rather than a plain 1437px so the panel never exceeds the
+          // canvas minus a gutter on each side. It resolves to exactly 1437px
+          // from ~1549px up, which covers the whole canvas-mode range, so the
+          // Row F/G frames are unaffected. `max-h` also loosens to 92% below
+          // `sm`, where the modal is effectively a sheet.
+          'absolute top-[calc(50%-25px)] left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col',
+          'w-[min(1437px,100%-2*var(--viq-gutter))] max-h-[92%] sm:max-h-[85%]',
+          'overflow-hidden rounded-viq-modal bg-white shadow-xl',
           className,
         )}
       >
@@ -115,13 +122,22 @@ export function Modal({ open, onClose, title, children, footer, className }: Mod
             title box 329..357, body 366..390, section heading 449..473, table
             header 503..525, three 48px rows to 669, footer button 709..750,
             modal bottom 804 — i.e. 52 top padding, 54 bottom, 56 sides. */}
-        <div className="shrink-0 px-14 pt-[52px]">
+        <div className="shrink-0 px-[var(--viq-gutter)] pt-[var(--viq-modal-pt)]">
           <h2 id={titleId} className="text-[20px] leading-7 font-semibold text-viq-text">
             {title}
           </h2>
         </div>
-        <div className="min-h-0 flex-1 overflow-auto px-14 pt-[9px]">{children}</div>
-        {footer && <div className="shrink-0 px-14 pt-[39px] pb-[54px]">{footer}</div>}
+        <div className="min-h-0 flex-1 overflow-auto px-[var(--viq-gutter)] pt-[9px]">
+          {children}
+        </div>
+        {/* 39px top / 54px bottom, the frame's values, held exactly from `lg`
+            up; below that they ramp so the footer does not eat a phone
+            sheet's whole height. See tokens.css. */}
+        {footer && (
+          <div className="shrink-0 px-[var(--viq-gutter)] pt-[var(--viq-modal-footer-pt)] pb-[var(--viq-modal-footer-pb)]">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   )

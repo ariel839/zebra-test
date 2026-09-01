@@ -66,7 +66,11 @@ export function TreeSelectPanel({
   return (
     <div
       className={cn(
-        'w-[242px] rounded-b-viq-control border border-t-0 border-viq-border bg-white shadow-lg',
+        // 242px is the measured design width, deliberately 18px narrower than
+        // the 260px trigger. Below `md` the trigger is full-width and a fixed
+        // 242px panel would hang short of it, so the panel matches the trigger
+        // (`w-full` against the trigger's own positioned wrapper) instead.
+        'w-full rounded-b-viq-control border border-t-0 border-viq-border bg-white shadow-lg md:w-[242px]',
         className,
       )}
     >

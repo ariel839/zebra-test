@@ -45,8 +45,17 @@ function LogoPlaceholder() {
  */
 export function ReviewLogoCard({ logo, companyName }: ReviewLogoCardProps) {
   return (
-    <div className="flex shrink-0 gap-[26px]">
-      <div className="flex h-[240px] w-[240px] items-center justify-center overflow-hidden rounded-viq-control border border-viq-border">
+    // `flex-wrap` so that when this card is stacked under the review rows on a
+    // 375px phone, the caption drops below the card instead of overflowing the
+    // 240px + 26px + caption width. A no-op from `sm` up.
+    //
+    // The card keeps its EXPLICIT 240x240. An earlier revision of this pass
+    // swapped the height for `aspect-square`, which broke it: this card is a
+    // flex item of the review row, whose default `align-items: stretch` gave
+    // it the full height of the row (~770px), and the aspect ratio only
+    // applies where one axis is auto. Do not remove `h-[240px]`.
+    <div className="flex shrink-0 flex-wrap gap-[26px]">
+      <div className="flex h-[240px] w-[240px] shrink-0 items-center justify-center overflow-hidden rounded-viq-control border border-viq-border">
         {logo ? (
           <img src={logo} alt={`${companyName} logo`} className="h-full w-full object-contain" />
         ) : (

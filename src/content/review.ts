@@ -62,11 +62,16 @@ export const REVIEW_COPY = {
     /** E2/E3 outline footer button, restores the pre-edit snapshot. */
     cancel: 'Cancel',
     /**
-     * E2/E3 primary footer button. The Figma genuinely labels this "Edit",
-     * not "Save", even though it commits the changes — spec §7.6 calls this
-     * a likely designer slip. Reproduced verbatim; do not rename to "Save".
+     * E2/E3 primary footer button. The Figma labels this "Edit", not "Save",
+     * even though it commits the changes — spec §7.6 flagged that as a likely
+     * designer slip and raised it as an open question (docs/copy-bugs.md).
+     *
+     * RESOLVED 2026-09-01: the client answered — it reads "Save". This is a
+     * deliberate, approved deviation from the E2/E3 frames, so a side-by-side
+     * against those PNGs will differ on this one string. Do NOT "restore"
+     * 'Edit' to match the frame.
      */
-    saveEdit: 'Edit',
+    saveEdit: 'Save',
   },
 
   /**

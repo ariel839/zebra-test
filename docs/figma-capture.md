@@ -154,7 +154,10 @@ here per the task brief rather than blocking on them:
 
 1. **Success overlay has no dismiss control** (spec §7.8) — auto-advance, or a button the designer
    omitted?
-2. **Edit mode's primary button reads `Edit`, not `Save`** (spec §7.6) — almost certainly a slip.
+2. ~~**Edit mode's primary button reads `Edit`, not `Save`** (spec §7.6) — almost certainly a
+   slip.~~ **RESOLVED 2026-09-01 — the client confirmed it should read `Save`.** Shipped in
+   `REVIEW_COPY.buttons.saveEdit`. The `E2`/`E3` frames therefore differ from the app on this one
+   string by design; a side-by-side against those PNGs will flag it, and that flag is expected.
 3. **Email casing is inconsistent** — `Useremail@gmail.com` in the form frames,
    `Useremail@Gmail.Com` in the R-column review frames (spec §7.7). Pick one.
 4. **Sidebar items 2–7 are inert but drawn at full contrast** (spec §7.9) — should they use

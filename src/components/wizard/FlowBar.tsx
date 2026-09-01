@@ -71,7 +71,7 @@ export function FlowBar({ screens, currentIndex, onPrev, onNext, onJump }: FlowB
     <div
       role="toolbar"
       aria-label="Guided flow navigation"
-      className="flex h-11 shrink-0 items-center gap-3 bg-viq-strip-dark px-4 text-sm"
+      className="flex h-11 shrink-0 items-center gap-2 bg-viq-strip-dark px-3 text-sm sm:gap-3 sm:px-4"
     >
       <button
         type="button"
@@ -83,7 +83,9 @@ export function FlowBar({ screens, currentIndex, onPrev, onNext, onJump }: FlowB
         )}
       >
         <ChevronLeft size={14} aria-hidden="true" />
-        Prev
+        {/* Chevron-only below `sm`: at 375px the words, the counter, the
+            screen label and "Jump to…" cannot all share a 44px bar. */}
+        <span className="hidden sm:inline">Prev</span>
       </button>
 
       <span className="tabular-nums text-white/50">
@@ -99,13 +101,13 @@ export function FlowBar({ screens, currentIndex, onPrev, onNext, onJump }: FlowB
           'hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-white/70',
         )}
       >
-        Next
+        <span className="hidden sm:inline">Next</span>
         <ChevronRight size={14} aria-hidden="true" />
       </button>
 
-      <span aria-hidden="true" className="h-4 w-px bg-white/15" />
+      <span aria-hidden="true" className="hidden h-4 w-px bg-white/15 sm:block" />
 
-      <span className="min-w-0 truncate font-semibold text-white">
+      <span className="hidden min-w-0 truncate font-semibold text-white sm:inline">
         <span className="text-viq-primary">{current.id}</span>
         <span className="text-white/40"> · </span>
         {current.label}
@@ -118,11 +120,12 @@ export function FlowBar({ screens, currentIndex, onPrev, onNext, onJump }: FlowB
           aria-expanded={jumpOpen}
           onClick={() => setJumpOpen((o) => !o)}
           className={cn(
-            'flex items-center gap-1.5 rounded-viq-control border border-white/15 px-3 py-1.5',
+            'flex shrink-0 items-center gap-1.5 rounded-viq-control border border-white/15 px-2 py-1.5 sm:px-3',
             'text-white/80 hover:bg-white/10 hover:text-white',
           )}
         >
-          Jump to…
+          <span className="hidden sm:inline">Jump to…</span>
+          <span className="sm:hidden">{current.id}</span>
           <ChevronDown
             size={14}
             aria-hidden="true"
@@ -133,7 +136,7 @@ export function FlowBar({ screens, currentIndex, onPrev, onNext, onJump }: FlowB
           <ul
             role="listbox"
             className={cn(
-              'absolute top-full right-0 z-50 mt-1 max-h-[420px] w-72 overflow-y-auto py-1',
+              'absolute top-full right-0 z-50 mt-1 max-h-[420px] w-72 max-w-[calc(100vw-1.5rem)] overflow-y-auto py-1',
               'rounded-viq-control border border-viq-border bg-white text-viq-text shadow-lg',
             )}
           >

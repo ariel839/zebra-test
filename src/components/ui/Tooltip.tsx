@@ -16,6 +16,10 @@ export interface TooltipProps {
 /** Gap between the trigger and the tooltip box, in design px (was `mb-2`). */
 const GAP = 8
 
+/** Box width, and the margin it keeps from the canvas's left/right edges. */
+const BOX_WIDTH = 220
+const EDGE_MARGIN = 8
+
 /**
  * Room the box needs above the trigger before opening upward is safe:
  * ~65px of content (up to 3 lines) plus the gap and a little slack.
@@ -92,10 +96,20 @@ export function Tooltip({ content, children, className, forceOpen }: TooltipProp
     const canvasRect = root.getBoundingClientRect()
     const triggerRect = triggerRef.current.getBoundingClientRect()
     // `offsetWidth` is the canvas's untransformed layout width (the design
-    // width), so this recovers ScaleToFit's scale without importing it.
-    const scale = root.offsetWidth > 0 ? canvasRect.width / root.offsetWidth : 1
-    const left = (triggerRect.left - canvasRect.left) / scale
+    // width in canvas mode, and the real viewport width in responsive mode —
+    // where the scale below therefore comes out as exactly 1 and all of this
+    // arithmetic degenerates to plain px on its own).
+    const canvasWidth = root.offsetWidth
+    const scale = canvasWidth > 0 ? canvasRect.width / canvasWidth : 1
+    const rawLeft = (triggerRect.left - canvasRect.left) / scale
     const spaceAbove = (triggerRect.top - canvasRect.top) / scale
+
+    // The box grows rightward from the trigger, so a trigger near the right
+    // edge pushes it off-canvas. At 1920 nothing came close enough for that
+    // to show; at 375 the second form column's info icon does. Clamped rather
+    // than flipped, so the box stays visually attached to its trigger.
+    const maxLeft = Math.max(EDGE_MARGIN, canvasWidth - BOX_WIDTH - EDGE_MARGIN)
+    const left = Math.min(Math.max(rawLeft, EDGE_MARGIN), maxLeft)
 
     setCanvas(root)
     setPlacement(
@@ -109,7 +123,10 @@ export function Tooltip({ content, children, className, forceOpen }: TooltipProp
     <span
       role="tooltip"
       className={cn(
-        'absolute z-50 w-[220px] rounded-viq-control bg-viq-tooltip-bg px-3 py-2.5',
+        // `min()` so the box narrows on a phone rather than being clamped
+        // hard against the edge. In canvas mode the viewport is >= 1920, so
+        // the 220px term always wins and the frames are unaffected.
+        'absolute z-50 w-[min(220px,100vw-2rem)] rounded-viq-control bg-viq-tooltip-bg px-3 py-2.5',
         'text-xs leading-relaxed text-viq-tooltip-text shadow-lg',
         // Fallback placement only — the portalled box positions itself with
         // the inline style below.

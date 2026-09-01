@@ -40,7 +40,7 @@ export function Overview() {
       {/* A1 starts its intro at y=124, 14px under the heading — above where the
           shell's 88px title block hands over at y=138 — so this pulls up into
           that block rather than starting below it. */}
-      <div className="-mt-[14px] h-full overflow-y-auto px-14 pb-8">
+      <div className="-mt-[14px] h-full overflow-y-auto px-[var(--viq-gutter)] pb-[var(--viq-block)]">
         {/* Figma inspect reports line-height 100% for A1's copy, but that is
             Figma's "Auto": the frame itself measures a 17.5px pitch on the
             intro (3 lines spanning y128..174) and 17px on the item bodies, so
@@ -52,7 +52,11 @@ export function Overview() {
         {/* A1's item grid is inset 12px from the intro (icons at x=300, text at
             x=321) and the right column's text starts at x=1163, which puts the
             column gap at 120px. */}
-        <div className="mt-[76px] ml-[12px] grid grid-cols-2 gap-x-[120px] gap-y-[78px]">
+        {/* One column below `lg`, where a 120px inter-column gutter plus two
+            text columns has nowhere to go. All three spacings are tokens and
+            all three are the frame's exact values from `lg` up — 76px, 78px,
+            120px; only the stacked phone/tablet case ramps. See tokens.css. */}
+        <div className="mt-[var(--viq-overview-mt)] ml-[12px] grid grid-cols-1 gap-x-[var(--viq-overview-gap-x)] gap-y-[var(--viq-overview-gap-y)] lg:grid-cols-2">
           {OVERVIEW_COPY.fields.map(({ id, label, icon: Icon, body }) => (
             <div key={id} className="flex gap-[7px] self-start">
               {/* strokeWidth 1.5 and the green are the Figma icon spec: `1.5px solid #7CB824`;

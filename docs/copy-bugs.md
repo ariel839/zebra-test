@@ -21,7 +21,7 @@ These are real typos in the Figma that the build reproduces deliberately. The cl
 
 - **Success overlay:** The overlay reads "37% Complete" on what is a success screen (B10), and has no dismiss control. Is this intentional, or should it show "100% Complete" or remove the percentage entirely? How should users close it?
 
-- **Edit mode button:** Edit mode's primary button is labelled `Edit`, not `Save` — likely a slip. Should it read `Save` instead?
+- **Edit mode button:** ~~Edit mode's primary button is labelled `Edit`, not `Save` — likely a slip. Should it read `Save` instead?~~ **RESOLVED 2026-09-01 — client confirmed it should read `Save`.** The build now ships `Save`, so the E2/E3 frames differ from the app on this one string by design.
 
 - **Email case variance:** The email appears as `Useremail@gmail.com` in the form frames (B01–B09, E2–E3) but `Useremail@Gmail.Com` in R3 (review layout). Which is correct?
 

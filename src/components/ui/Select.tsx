@@ -97,7 +97,7 @@ export function Select({
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
           className={cn(
-            'flex h-9 w-[260px] items-center justify-between border border-viq-border bg-white px-3',
+            'flex h-9 w-full items-center justify-between border border-viq-border bg-white px-3',
             'text-sm hover:border-viq-border-hover',
             open ? 'rounded-t-viq-control border-b-0' : 'rounded-viq-control',
           )}
@@ -114,7 +114,7 @@ export function Select({
           <ul
             role="listbox"
             className={cn(
-              'absolute top-full left-0 z-40 max-h-[390px] w-[260px] overflow-y-auto',
+              'absolute top-full left-0 z-40 max-h-[390px] w-full overflow-y-auto',
               'rounded-b-viq-control border border-t-0 border-viq-border bg-white py-1 shadow-lg',
             )}
           >

@@ -42,13 +42,36 @@ const AUTO_ADD_CONTRACTS_OPTIONS = [
  * 32px gap between rows. Implemented as rows of columns rather than a single
  * CSS grid so a row can render only one slot (see Automatically Add Contracts
  * = No, B02) without the other slot's space collapsing into the next row.
+ *
+ * Responsive: the two slots stack below `md` — the other structural
+ * breakpoint of the pass, since two 260px fields plus their gap need 552px of
+ * content width and a 375px phone has ~343px. The column gap rides
+ * `--viq-gap-field`, which caps at the measured 32px, so from `md` up this is
+ * the original `flex gap-8` row with 260px slots and nothing has moved.
+ *
+ * Stacked, the slots take the full width but cap at 420px: a single field
+ * spanning the whole 767px of a large phone in landscape reads as a mistake,
+ * and none of these inputs benefit from the extra width.
  */
 function Strip({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mb-[31px] flex gap-8', className)}>{children}</div>
+  return (
+    <div
+      className={cn(
+        'mb-[var(--viq-row-gap)] flex flex-col gap-[var(--viq-gap-field)] md:flex-row',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  )
 }
 
 function Col({ children }: { children: ReactNode }) {
-  return <div className="w-[260px] shrink-0">{children}</div>
+  return (
+    <div className="w-full min-w-0 max-w-[420px] md:w-[260px] md:max-w-none md:shrink-0">
+      {children}
+    </div>
+  )
 }
 
 export function DashboardSettingsForm() {
@@ -147,7 +170,7 @@ export function DashboardSettingsForm() {
           </>
         }
       >
-        <div className="h-full overflow-y-auto px-14 pt-[39px] pb-8">
+        <div className="h-full overflow-y-auto px-[var(--viq-gutter)] pt-[var(--viq-form-pt)] pb-[var(--viq-block)]">
           <Strip>
             <Col>
               <InputWithHeader

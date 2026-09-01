@@ -20,11 +20,16 @@ export interface ReviewRowProps {
  */
 export function ReviewRow({ label, value, note }: ReviewRowProps) {
   return (
-    <div className="border-b border-viq-border px-6 pt-7 pb-[15px]">
+    <div className="border-b border-viq-border px-6 pt-[var(--viq-review-row-pt)] pb-[var(--viq-review-row-pb)]">
       <div className="text-base text-viq-text-muted">{label}</div>
       {/* min-h-7 keeps a chip row exactly as tall as a text row: every R3
           row pitches at ~103px whether its value is text or chips. */}
-      <div className="mt-[7px] flex min-h-7 items-center justify-between gap-4">
+      {/* Wraps below `sm`: the value and the right-aligned note (R3's
+          'Contracts automatically added') do not both fit on a phone line.
+          `min-h` still equalises a chip row against a text row — it just does
+          it at a height that tracks the window, so seven of these rows fit a
+          900px-tall browser window without a scrollbar. */}
+      <div className="mt-[var(--viq-review-value-mt)] flex min-h-[var(--viq-review-value-h)] flex-wrap items-center justify-between gap-x-4 gap-y-1 sm:flex-nowrap">
         <div className="min-w-0 text-lg font-medium text-viq-text">{value}</div>
         {note && <span className="shrink-0 text-base text-viq-text-muted">{note}</span>}
       </div>

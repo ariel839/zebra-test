@@ -27,3 +27,6 @@ dist
 .vercel
 .DS_Store
 .superpowers
+
+# Screenshot output of tools/responsive/sweep.mjs
+tools/responsive/shots

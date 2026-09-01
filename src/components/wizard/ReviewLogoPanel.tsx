@@ -39,7 +39,9 @@ function LogoPlaceholder() {
  */
 export function ReviewLogoPanel({ logo, companyName, accountNumber }: ReviewLogoPanelProps) {
   return (
-    <div className="mt-2.5 w-[200px] shrink-0 text-center">
+    // Centred when stacked above the rows below `lg`; back on the left edge
+    // of the row from `lg` up — canvas mode — which is where R3 measures it.
+    <div className="mt-2.5 w-[200px] shrink-0 text-center max-lg:mx-auto">
       <div className="flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-viq-control border border-viq-border">
         {logo ? (
           <img

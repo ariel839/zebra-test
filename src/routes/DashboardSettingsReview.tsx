@@ -39,13 +39,24 @@ const AUTO_ADD_CONTRACTS_OPTIONS = [
   { label: fields.radio.yes, value: 'yes' as const },
 ]
 
-/** Mirrors the two-column field grid used by the initial Dashboard Settings form. */
+/**
+ * Mirrors the two-column field grid used by the initial Dashboard Settings
+ * form, including its responsive behaviour: the two slots stack below `md`
+ * and the column gap rides `--viq-gap-field`, which caps at the measured
+ * 32px, so from `md` up this is the original `flex gap-8` row.
+ */
 function Strip({ children }: { children: ReactNode }) {
-  return <div className="mb-6 flex gap-8">{children}</div>
+  return (
+    <div className="mb-6 flex flex-col gap-[var(--viq-gap-field)] md:flex-row">{children}</div>
+  )
 }
 
 function Col({ children }: { children: ReactNode }) {
-  return <div className="w-[260px] shrink-0">{children}</div>
+  return (
+    <div className="w-full min-w-0 max-w-[420px] md:w-[260px] md:max-w-none md:shrink-0">
+      {children}
+    </div>
+  )
 }
 
 /**
@@ -154,14 +165,15 @@ export function DashboardSettingsReview() {
             <Button variant="outline" leftIcon={<X size={16} />} onClick={cancelEdit}>
               {buttons.cancel}
             </Button>
-            {/* Verbatim Figma copy — the primary button reads "Edit", not "Save". */}
+            {/* Reads "Save", not the frame's "Edit" — client-approved fix to
+                the §7.6 designer slip. See REVIEW_COPY.buttons.saveEdit. */}
             <Button variant="primary" onClick={saveEdit}>
               {buttons.saveEdit}
             </Button>
           </>
         }
       >
-        <div className="h-full overflow-y-auto px-14 pt-8 pb-8">
+        <div className="h-full overflow-y-auto px-[var(--viq-gutter)] pt-[var(--viq-block)] pb-[var(--viq-block)]">
           <Strip>
             <Col>
               <InputWithHeader
@@ -304,13 +316,31 @@ export function DashboardSettingsReview() {
           The card sits 9px lower than the rows start — hence mt-[9px], not a
           shared container offset.
         */}
-        <div className="flex h-full gap-[176px] overflow-y-auto px-14 pt-7 pb-8">
-          <div className="w-[684px] shrink-0">
+        {/* Stacks below `lg` — the third structural breakpoint of the pass.
+            `lg` is the canvas threshold, so side-by-side is on for every
+            desktop size: the canvas is 1920 design px wide there and the 684px
+            row column, 176px gutter and 240px logo card fit it exactly as the
+            frame does. A wider prefix (`2xl`) would reflow a canvas that has
+            room, because media queries see the 1190px window and not the 1920
+            layout. Below `lg` there is no canvas, and 1080px of content has
+            nowhere to go, so it stacks.
+
+            The rows stay FIRST when stacked: they are the content being
+            reviewed, and putting the 240px logo card above them would make a
+            phone scroll past a decoration to reach the data. */}
+        <div className="flex h-full flex-col gap-8 overflow-y-auto px-[var(--viq-gutter)] pt-[var(--viq-review-row-pt)] pb-[var(--viq-block)] lg:flex-row lg:gap-[var(--viq-gap-review)]">
+          {/* `flex-1 max-w`, never a fixed `w-[684px]`: the column reaches its
+              measured 684px whenever there is room (the whole of canvas mode,
+              where the layout is 1920 wide) but can give ground instead of
+              overflowing if the content beside it ever grows. */}
+          <div className="w-full max-w-[684px] lg:flex-1">
             {reviewFields.map((f) => (
               <ReviewRow key={f.key} label={f.label} value={f.value} />
             ))}
           </div>
-          <div className="mt-[9px] shrink-0">
+          {/* The 9px drop is the frame's own row-to-card offset, so it only
+              applies where the card actually sits beside the rows. */}
+          <div className="shrink-0 lg:mt-[9px]">
             <ReviewLogoCard logo={form.companyLogo} companyName={companyLabel} />
           </div>
         </div>
@@ -328,8 +358,8 @@ export function DashboardSettingsReview() {
           the card sits 176px right of it. Box pitch is 100.67 (76 tall + a
           24.5px gap splits the difference to under 2px across all seven).
         */}
-        <div className="flex h-full gap-[176px] overflow-y-auto px-14 pt-10 pb-8">
-          <div className="flex w-[684px] shrink-0 flex-col gap-[24.5px]">
+        <div className="flex h-full flex-col gap-8 overflow-y-auto px-[var(--viq-gutter)] pt-10 pb-[var(--viq-block)] lg:flex-row lg:gap-[var(--viq-gap-review)]">
+          <div className="flex w-full max-w-[684px] flex-col gap-[var(--viq-review-box-gap)] lg:flex-1">
             {reviewFields.map((f) => (
               <ReviewFieldBox key={f.key} label={f.label} value={f.value} />
             ))}
@@ -360,13 +390,20 @@ export function DashboardSettingsReview() {
         the column is a fixed 684px — the rules stop there, they do not run to
         the edge of the window.
       */}
-      <div className="flex h-full gap-[89px] overflow-y-auto px-14 pt-8 pb-8">
+      {/* R3 already puts the logo first, so stacking below `lg` naturally
+          gives the logo-above-rows reading its own layout is built around.
+          The row gap (89px) and the column gap (32px) are on different axes,
+          so switching between them produces no visible step. Same `2xl`
+          threshold as the other two arrangements — R3's 200px logo panel
+          would technically fit from ~1300px, but three review layouts that
+          reflow at different widths read as arbitrary while resizing. */}
+      <div className="flex h-full flex-col gap-8 overflow-y-auto px-[var(--viq-gutter)] pt-[var(--viq-block)] pb-[var(--viq-block)] lg:flex-row lg:gap-[89px]">
         <ReviewLogoPanel
           logo={form.companyLogo}
           companyName={companyLabel}
           accountNumber={form.accountNumber}
         />
-        <div className="w-[684px] shrink-0">
+        <div className="w-full max-w-[684px] lg:flex-1">
           <ReviewRow
             label={rows.displayName}
             value={form.displayName}

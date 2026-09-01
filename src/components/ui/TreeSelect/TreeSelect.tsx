@@ -106,7 +106,9 @@ export function TreeSelect({
   }, [open])
 
   return (
-    <div className={cn('flex w-[260px] flex-col', className)} ref={wrapperRef}>
+    // Width comes from the form grid's `Col`, like every other field control
+    // — the spec §2 grid's 260px from `md` up, the full stacked column below.
+    <div className={cn('flex w-full flex-col', className)} ref={wrapperRef}>
       <FieldLabel label={label} required={required} tooltip={tooltip} htmlFor={id} />
       <div className="relative">
         <button

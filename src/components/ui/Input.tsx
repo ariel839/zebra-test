@@ -10,7 +10,9 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 /**
- * `w-[260px]` matches the spec §2 form grid (two-column, 260px controls).
+ * Width comes from the form grid, not from here: `w-full` fills whatever
+ * slot the `Col` wrapper gives it, which is the spec §2 grid's 260px from
+ * `md` up and the full (420px-capped) column width when the grid stacks.
  *
  * Hover: `border-viq-border-hover` is a verified pixel match — B03
  * (`10489:76991`) samples `#a4a9af` on the exact same 183px border-outline
@@ -29,7 +31,7 @@ export function Input({ className, forceHover, ...rest }: InputProps) {
   return (
     <input
       className={cn(
-        'h-9 w-[260px] rounded-viq-control border border-viq-border bg-white px-3 text-sm',
+        'h-9 w-full rounded-viq-control border border-viq-border bg-white px-3 text-sm',
         'text-viq-text placeholder:text-viq-text-placeholder',
         'hover:border-viq-border-hover',
         forceHover && 'border-viq-border-hover',

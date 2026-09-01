@@ -41,7 +41,20 @@ export function DataTable<T extends { id: string }>({
   className,
 }: DataTableProps<T>) {
   return (
-    <table className={cn('w-full border-collapse text-left text-[12px] text-viq-text', className)}>
+    // The five data columns are a fixed 242px each (see below), so the table
+    // has a hard 1210px floor and cannot be made to fit a phone. Rather than
+    // restack five short values into cards — which would lose the column
+    // headings that make the comparison readable — it scrolls sideways inside
+    // its own region below `lg`.
+    //
+    // `max-lg:` and not unconditional: in canvas mode the modal always gives
+    // the table ~1325px, so the scroll region has nothing to do there — and an
+    // `overflow-x: auto` box is a scroll container, which clips at its padding
+    // box and shaved a hairline off the table's outer rules at fractional
+    // canvas scales. Confining it to sub-`lg` keeps every desktop render
+    // byte-identical to the frames.
+    <div className={cn('w-full max-lg:overflow-x-auto', className)}>
+      <table className="w-full min-w-[1210px] border-collapse text-left text-[12px] text-viq-text">
       <thead>
         <tr className="border-b border-viq-border">
           {columns.map((column) => (
@@ -95,7 +108,8 @@ export function DataTable<T extends { id: string }>({
             </tr>
           )
         })}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   )
 }

@@ -134,3 +134,108 @@
   --radius-viq-pill:             9999px;   /* not a required token — sampled: the F2b status tags render as
                                                fully-rounded stadium pills, distinct from --radius-viq-control */
 }
+
+/* ---------------------------------------------------------------------------
+   Layout scale (added 2026-09-01, the responsive pass)
+
+   LAYOUT tokens, not sampled design values, so they live outside `@theme` —
+   they generate no Tailwind utilities and are consumed as
+   `px-[var(--viq-gutter)]`. Nothing here was measured off a frame; every
+   value below IS the frame's measured constant, and the media query further
+   down is the only place any of them changes.
+
+   ## The rule
+
+   **From 1024px up, every token equals the Figma constant exactly.** Desktop
+   is the design, at 1:1, with no ramping, no compression and no invented
+   spacing — whatever the window height happens to be. Only below 1024 (tablet
+   and phone, where the design has no frames at all and a 56px page gutter or a
+   78px grid gap is plainly wrong) do these become fluid.
+
+   That line was drawn deliberately, and it costs something: a browser window
+   shorter than the 1080 design frame cannot show a full 1080 of content, so
+   the page's own scroll region scrolls. Keeping the frame's measurements is
+   worth more than hiding that scrollbar — the alternative was compressing
+   vertical rhythm on desktop, which visibly departs from the design at every
+   laptop size.
+
+   `tools/responsive/sweep.mjs` asserts the ceilings at 1920x1080, so a future
+   change here cannot quietly move the design width.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Page horizontal gutter — `px-14`. */
+  --viq-gutter: 3.5rem;             /* 56px */
+  /* Vertical block padding inside a scroll region — `pt-8` / `pb-8`. */
+  --viq-block: 2rem;                /* 32px */
+  /* Gap between the two form field columns — `gap-8`. */
+  --viq-gap-field: 2rem;            /* 32px */
+  /* Gap between the form's field rows — `mb-[31px]`. */
+  --viq-row-gap: 1.9375rem;         /* 31px */
+  /* Top padding of the Dashboard Settings form's scroll region. */
+  --viq-form-pt: 2.4375rem;         /* 39px */
+  /* Footer action strip height. */
+  --viq-footer-h: 6.125rem;         /* 98px */
+  /* Page title block height. */
+  --viq-title-h: 5.5rem;            /* 88px */
+
+  /* Review: gutter between the row column and the logo card. Applied by the
+     review layouts under an `lg:` prefix only — below that they stack and use
+     a plain 32px column gap, so this token is always the side-by-side gutter
+     and always the frame's 176px. */
+  --viq-gap-review: 11rem;          /* 176px */
+  /* Review row: padding, and its value line's height and lead-in. */
+  --viq-review-row-pt: 1.75rem;     /* 28px */
+  --viq-review-row-pb: 0.9375rem;   /* 15px */
+  --viq-review-value-h: 1.75rem;    /* 28px */
+  --viq-review-value-mt: 0.4375rem; /* 7px */
+  /* Boxed (E1/R1) review: card height and the gap between cards. */
+  --viq-review-box-h: 4.75rem;      /* 76px */
+  --viq-review-box-gap: 1.53125rem; /* 24.5px */
+
+  /* Overview (home) field grid: lead-in, row gap, column gutter. */
+  --viq-overview-mt: 4.75rem;       /* 76px */
+  --viq-overview-gap-y: 4.875rem;   /* 78px */
+  --viq-overview-gap-x: 7.5rem;     /* 120px */
+
+  /* Modal: title lead-in and footer padding. */
+  --viq-modal-pt: 3.25rem;          /* 52px */
+  --viq-modal-footer-pt: 2.4375rem; /* 39px */
+  --viq-modal-footer-pb: 3.375rem;  /* 54px */
+}
+
+/* Tablet and phone only — below Tailwind's `lg`. The design has no frames at
+   these sizes, so these are the pass's own values: each ramps smoothly from a
+   375px-wide / 700px-tall floor up to the frame constant, which it reaches at
+   the 1024px boundary so nothing steps as the query releases.
+
+   Horizontal measurements ramp on `vw`; vertical rhythm ramps on `vh`, because
+   what makes a short window scroll is its height, not its width. */
+@media (max-width: 63.999rem) {
+  :root {
+    --viq-gutter: clamp(1rem, 0.2716rem + 3.0769vw, 3.5rem);
+    --viq-gap-field: clamp(1rem, 0.7086rem + 1.2308vw, 2rem);
+
+    --viq-block: clamp(1.25rem, -0.5rem + 4vh, 2rem);
+    --viq-row-gap: clamp(1.25rem, -0.3542rem + 3.6667vh, 1.9375rem);
+    --viq-form-pt: clamp(1.5rem, -0.6875rem + 5vh, 2.4375rem);
+    --viq-footer-h: clamp(4.5rem, 0.7083rem + 8.6667vh, 6.125rem);
+    --viq-title-h: clamp(4rem, 0.5rem + 8vh, 5.5rem);
+
+    --viq-review-row-pt: clamp(1.25rem, 0.0833rem + 2.6667vh, 1.75rem);
+    --viq-review-row-pb: clamp(0.625rem, 0.0417rem + 1.3333vh, 0.9375rem);
+    --viq-review-value-h: clamp(1.5rem, 0.9167rem + 1.3333vh, 1.75rem);
+    --viq-review-value-mt: clamp(0.25rem, -0.1875rem + 1vh, 0.4375rem);
+    --viq-review-box-h: clamp(4rem, 2.25rem + 4vh, 4.75rem);
+    --viq-review-box-gap: clamp(1rem, -0.2396rem + 2.8333vh, 1.53125rem);
+
+    /* Stacked to one column below `lg`, so the column gutter is unused and the
+       row gap belongs to a six-gap stack rather than the frame's three. */
+    --viq-overview-mt: clamp(1.5rem, -6.0833rem + 17.3333vh, 4.75rem);
+    --viq-overview-gap-y: 2.5rem;
+    --viq-overview-gap-x: 2rem;
+
+    --viq-modal-pt: clamp(1.5rem, -2.5833rem + 9.3333vh, 3.25rem);
+    --viq-modal-footer-pt: clamp(1rem, -2.3542rem + 7.6667vh, 2.4375rem);
+    --viq-modal-footer-pb: clamp(1.25rem, -3.6042rem + 11.1111vh, 3.375rem);
+  }
+}

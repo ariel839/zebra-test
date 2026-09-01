@@ -3,10 +3,21 @@
 
 html, body, #root {
   height: 100%;
+  /* `dvh` so the app shell tracks a mobile browser's shrinking/growing
+     viewport instead of the static `100%`, which leaves the footer strip
+     under the address bar on iOS Safari. `height: 100%` above stays as the
+     fallback for anything without `dvh`. */
+  height: 100dvh;
   margin: 0;
   background: #000;
+  /* The wizard is a fixed-chrome app shell with its own internal scroll
+     regions, so page-level rubber-banding just detaches the strips. */
+  overscroll-behavior: none;
 }
 
 html {
   font-family: var(--font-sans);
+  /* Stops iOS inflating body text when a phone is rotated to landscape,
+     which would break the measured type scale. */
+  -webkit-text-size-adjust: 100%;
 }
